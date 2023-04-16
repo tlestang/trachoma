@@ -1,10 +1,11 @@
 import numpy as np
 
+
 def init_ages(params, max_age, mean_age):
     ages = np.arange(max_age) + 1
-    age_prob =  (
+    age_prob = (
         (1. - np.exp(-1. / mean_age)) *
-        np.exp( - ages / mean_age)
+        np.exp(- ages / mean_age)
     )
     age_prob[-1] = 1 - age_prob[:-1].sum()
 
@@ -24,25 +25,30 @@ def init_infected(pop_size, fraction, rng):
     T_latent[infected_id] = LATENT_PERIOD
     return I, T_latent
 
+
 def getlambdaStep(ages, bact_load):
 
     y_children = ages < 9 * 52
     o_children = (ages >= 9 * 52) & (ages < 15 * 52)
     adults = ages >= 15 * 52
 
-    totalLoad = np.array([np.sum(bact_load[y_children]) / len(y_children),
-    np.sum(bact_load[o_children]) / len(o_children), np.sum(bact_load[adults]) / len(adults)])
+    totalLoad = np.array([
+        np.sum(bact_load[y_children]) / len(y_children),
+        np.sum(bact_load[o_children]) / len(o_children),
+        np.sum(bact_load[adults]) / len(adults)
+    ])
+    # [lambda1, lambda2, lambda3]
     prevLambda = bet * (V_1 * totalLoad + V_2 * (totalLoad ** (PHI + 1)))
 
     a = len(y_children)/POP_SIZE
     b = len(o_children)/POP_SIZE
     c = len(adults)/POP_SIZE
     epsm = 1 - EPSILON
-    A = [
-        prevLambda[0]*a + prevLambda[1]*epsm*b + prevLambda[2]*epsm*c,
-        prevLambda[0]*a*epsm + prevLambda[1]*b + prevLambda[2]*epsm*c,
-        prevLambda[0]*a*epsm + prevLambda[1]*epsm*b + prevLambda[2]*c,
-    ]
+    A = 1 - np.exp([
+        - prevLambda[0]*a + prevLambda[1]*epsm*b + prevLambda[2]*epsm*c,
+        - prevLambda[0]*a*epsm + prevLambda[1]*b + prevLambda[2]*epsm*c,
+        - prevLambda[0]*a*epsm + prevLambda[1]*epsm*b + prevLambda[2]*c,
+    ])
     returned = np.ones(params['N'])
     returned[y_children] = A[0]
     returned[o_children] = A[1]
@@ -50,13 +56,15 @@ def getlambdaStep(ages, bact_load):
     return returned
 
 
-def infected_mask(IndI, ages, bact_load, rng):
-    lam = getlambdaStep(ages, bact_load)
-    infection_prob = 1 - np.exp(-lam)    
-    return (
-        (rng.uniform(size=POP_SIZE) < infection_prob) &
-        ~IndI
-    )
+def get_new_infections(I, ages, bact_load, rng):
+    prob = getlambdaStep(ages, bact_load)
+    target = ~I
+    target_size = np.count_nonzero(target)
+    newinf = np.zeros(POP_SIZE, dtype=np.bool_)
+    newinf[target] = rng.uniform(size=target_size) < prob[target]
+    return newinf
+
+
 
 V_1 = 1
 V_2 = 2.6
@@ -72,28 +80,29 @@ infection_counter = np.zeros(POP_SIZE)
 
 ages = init_ages(POP_SIZE, MAX_AGE, MEAN_AGE, rng)
 
-I = [[] for i in range(latent_period)]
-ID = [[] for i in range(ID_period)]
-D = [[] for i in range(D_period)]
+I = np.zeros(POP_SIZE, dtype=np.bool_)
+D = np.zeros(POP_SIZE, dtype=np.bool_)
+T = np.zeros(POP_SIZE) - 1
 
-I[-1] = list(rng.integers(low=0, high=POP_SIZE, size=ninf))
-infection_counter[I[-1]] += 1
+init_infected(I, T)
+infection_counter[I] = 1
 
 for t in timesteps:
 
-    iD = t % D_period
-    iID = t % ID_period
-    iI = t % latent_period
-    
-    D[iD] = ID[iID]; IndI[D[iD]] = False # ID -> D
-    bact_load[D[iD]] = get_bact_load()
-    ID[iID] = I[iI] # I -> ID
+    new_s = D & ~I & ~T
+    new_d = I & D & ~T
+    new_id = I & ~D & ~T
+    new_i = get_new_infections(I, ages, bact_load, rng)
 
-    infected = infected_mask(IndI, ages, bact_load)
-    I[iI] = ids[infected]
-    IndI[infected] = True
-    infection_counter[infected] += 1
+    T[new_i] = T_latent
+    T[new_id] = T_ID
+    T[new_d] = T_D
 
+    D = D & ~new_s | new_d
+    I = I & ~new_d | new_i
 
+    # housekeeping
+    infection_counter[new_i] += 1
+    T -= -1
 
 
