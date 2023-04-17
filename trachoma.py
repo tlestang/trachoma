@@ -1,7 +1,8 @@
 import numpy as np
 
 
-def init_ages(params, max_age, mean_age):
+def init_ages(pop_size, max_age, mean_age, rng):
+    """Returns age array"""
     ages = np.arange(max_age) + 1
     age_prob = (
         (1. - np.exp(-1. / mean_age)) *
@@ -17,13 +18,11 @@ def init_ages(params, max_age, mean_age):
 
 
 def init_infected(pop_size, fraction, rng):
-    I = np.zeros(pop_size, dtype=np.bool_)
-    T_latent = np.zeros(pop_size)
+    newinf = np.zeros(pop_size, dtype=np.bool_)
     ninf = int(fraction * pop_size)
-    infected_id = rng.integers(low=0, high=pop_size, size=ninf)
-    I[infected_id] = True
-    T_latent[infected_id] = LATENT_PERIOD
-    return I, T_latent
+    infected_id = rng.choice(range(0, pop_size), size=ninf, replace=False)
+    newinf[infected_id] = True
+    return newinf
 
 
 def getlambdaStep(ages, bact_load):
@@ -56,53 +55,54 @@ def getlambdaStep(ages, bact_load):
     return returned
 
 
-def get_new_infections(I, ages, bact_load, rng):
+def get_new_infections(susceptibles, ages, bact_load, rng):
     prob = getlambdaStep(ages, bact_load)
-    target = ~I
-    target_size = np.count_nonzero(target)
-    newinf = np.zeros(POP_SIZE, dtype=np.bool_)
-    newinf[target] = rng.uniform(size=target_size) < prob[target]
+    target_size = np.count_nonzero(susceptibles)
+    newinf = np.zeros(ages.size, dtype=np.bool_)
+    newinf[susceptibles] = rng.uniform(size=nsusceptibles) < prob[susceptibles]
     return newinf
-
 
 
 V_1 = 1
 V_2 = 2.6
 PHI = 1.4
-LATENT_PERIOD = 2
+T_LATENT = 2
+T_ID = 2
+T_D = 2
 POP_SIZE = 200
 NWEEKS = 52
 MAX_AGE = 60 * NWEEKS
 MEAN_AGE = 20 * NWEEKS
 
 rng = np.random.default_rng()
+
+infected = np.zeros(POP_SIZE, dtype=np.bool_)
+diseased = np.zeros(POP_SIZE, dtype=np.bool_)
+clock = np.zeros(POP_SIZE) - 1
 infection_counter = np.zeros(POP_SIZE)
+
+newinf = init_infected(POP_SIZE, initial_fraction_infected, rng)
+infected = infected | newinf
+infection_counter[newinf] = 1
 
 ages = init_ages(POP_SIZE, MAX_AGE, MEAN_AGE, rng)
 
-I = np.zeros(POP_SIZE, dtype=np.bool_)
-D = np.zeros(POP_SIZE, dtype=np.bool_)
-T = np.zeros(POP_SIZE) - 1
-
-init_infected(I, T)
-infection_counter[I] = 1
-
 for t in timesteps:
+    transition = np.logical_not(clock.astype(np.bool_))
+    new_s = diseased & ~infected & transition
+    new_d = infected & diseased & transition
+    new_id = infected & ~diseased & transition
+    newinf = get_new_infections(~I, ages, bact_load, rng)
 
-    new_s = D & ~I & ~T
-    new_d = I & D & ~T
-    new_id = I & ~D & ~T
-    new_i = get_new_infections(I, ages, bact_load, rng)
-
-    T[new_i] = T_latent
+    T[new_i] = T_LATENT
     T[new_id] = T_ID
     T[new_d] = T_D
 
-    D = D & ~new_s | new_d
-    I = I & ~new_d | new_i
+    diseased = diseased & ~new_s | new_d
+    infected = infected & ~new_d | new_i
 
     # housekeeping
-    infection_counter[new_i] += 1
-    T -= -1
+    infection_counter[newinf] += 1
+    clock -= -1
 
 
