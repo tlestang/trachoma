@@ -81,6 +81,11 @@ diseased = np.zeros(POP_SIZE, dtype=np.bool_)
 clock = np.zeros(POP_SIZE) - 1
 infection_counter = np.zeros(POP_SIZE)
 
+# Baseline disease periods
+latent_period_bases = np.zeros(POP_SIZE) + 2
+ID_period_base=rng.poisson(lam=AV_ID_DURATION, size=POP_SIZE)
+D_period_base=rng.poisson(lam=AV_D_DURATION, size=POP_SIZE)
+
 newinf = init_infected(POP_SIZE, initial_fraction_infected, rng)
 infected = infected | newinf
 infection_counter[newinf] = 1
@@ -94,9 +99,9 @@ for t in timesteps:
     new_id = infected & ~diseased & transition
     newinf = get_new_infections(~I, ages, bact_load, rng)
 
-    T[new_i] = T_LATENT
-    T[new_id] = T_ID
-    T[new_d] = T_D
+    T[new_i] = latent_period_base[new_i]
+    T[new_id] = get_ID_time(ID_period_base[new_i], infection_counter[new_i])
+    T[new_d] = get_D_time(D_period_base[new_d], infection_counter[new_d], ages[new_d])
 
     diseased = diseased & ~new_s | new_d
     infected = infected & ~new_d | new_i
@@ -104,5 +109,23 @@ for t in timesteps:
     # housekeeping
     infection_counter[newinf] += 1
     clock -= -1
+
+
+def get_ID_time(base_period, infection_count):
+    return np.round(
+        (base_period - MIN_ID)
+        * np.exp(-INF_RED * (infection_count - 1))
+        + MIN_ID
+    )
+
+
+def get_D_time(base_period, infection_count, ages):
+    return np.round(
+        (base_period - MIN_D)
+        * np.exp(AQ * (1 - infection_count) - AG * ages)
+        + MIN_D
+        )
+        
+    
 
 
