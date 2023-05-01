@@ -7,12 +7,7 @@ import periods
 
 rng = np.random.default_rng()
 
-infected = np.zeros(p.POP_SIZE, dtype=np.bool_)
-diseased = np.zeros(p.POP_SIZE, dtype=np.bool_)
-clock = np.zeros(p.POP_SIZE) - 1
-infection_counter = np.zeros(p.POP_SIZE)
 ages = init.ages(p.POP_SIZE, p.MAX_AGE, p.MEAN_AGE, rng)
-bact_load = np.zeros(p.POP_SIZE)
 
 # Baseline disease periods
 latent_period_base = np.zeros(p.POP_SIZE) + 2
@@ -23,6 +18,15 @@ newinf = init.infected(p.POP_SIZE, fraction=0.1, rng=rng)
 infected = infected | newinf
 infection_counter[newinf] = 1
 
+
+def compose(f, g):
+    return lambda x: f(g(x))
+
+def identity(f)
+
+from functools import reduce
+
+reduce(compose, [f]* n)
 
 
 for t in range(0,10000):
