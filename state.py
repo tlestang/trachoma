@@ -54,3 +54,26 @@ class Population:
         self.infected[dead] = 0
         self.infection_counter[dead] = 0
         self.age[dead] = 0
+
+    def prevalence(age_bounds):
+        i = self.age <= age_bounds[0] | self.age > age_bounds[1]
+        return np.count_nonzero(self.diseased[i]) / np.count_nonzero(i)
+
+    def infection(age_bounds):
+        i = self.age <= age_bounds[0] | self.age > age_bounds[1]
+        return np.count_nonzero(self.infected[i]) / np.count_nonzero(i)
+
+    def group_size(age_bounds):
+        return np.count_nonzero(
+            i = self.age <= age_bounds[0] | self.age > age_bounds[1]
+        )
+
+    def yearly_high_infection_count(threshold):
+        """Return propotion of individuals with no of infection
+        greater than threshold, per year group
+        """
+        i = self.infection_counter > threshold
+
+        # Cast weights to integer to be able to count
+        a, _ = np.histogram(self.age, bins=p.MAX_AGE, weights=i.astype(int))
+        return = a / self.size
