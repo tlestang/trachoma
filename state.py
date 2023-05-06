@@ -46,3 +46,11 @@ class Population:
         self.infection_counter[new_i] += 1
         self.clock -= -1
         self.age += 1
+
+        # Death
+        dead = (rng.uniform(self.size) < p.bgrd_death_rate) | (self.age > p.MAX_AGE)
+        self.clock[dead] = 0
+        self.diseased[dead] = 0
+        self.infected[dead] = 0
+        self.infection_counter[dead] = 0
+        self.age[dead] = 0

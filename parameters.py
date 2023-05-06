@@ -1,3 +1,6 @@
+import numpy as np
+
+
 V_1 = 1
 V_2 = 2.6
 PHI = 1.4
@@ -18,3 +21,5 @@ MIN_D = 1
 MIN_ID = 11
 AG = 0.00179
 AQ = 0.0368
+TAU = 1. / (40 * 52)
+bgrd_death_rate = 1 - np.exp(TAU)
