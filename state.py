@@ -1,8 +1,8 @@
-import np as np
+import numpy as np
 
 
 class Population:
-    ""
+
     def __init__(self, ages):
         self.size = len(ages)
         self.ages = ages
@@ -12,22 +12,37 @@ class Population:
         self.infection_counter = np.zeros(self.size)
         self.bact_load = np.zeros(self.size)
 
+        self.rng = np.random.default_rng()
+
+        # Baseline disease periods
+        self.latent_period_base = np.zeros(p.POP_SIZE) + 2
+        self.ID_period_base=self.rng.poisson(lam=p.AV_ID_DURATION, size=p.POP_SIZE)
+        self.D_period_base=self.rng.poisson(lam=p.AV_D_DURATION, size=p.POP_SIZE)
+
 
     def tick(self):
-            transition = np.logical_not(clock.astype(np.bool_))
-            new_s = self.diseased & ~self.infected & self.transition
-            new_d = self.infected & self.diseased & self.transition
-            new_id = self.infected & ~self.diseased & self.transition
-            new_i = get_new_infections([new_i] = periods.latent_time(latent_period_base[new_i])
-    clock[new_id] = periods.id_time(ID_period_base[new_id], infection_counter[new_id])
-    clock[new_d] = periods.d_time(D_period_base[new_d], infection_counter[new_d], ages[new_d])
+        transition = np.logical_not(clock.astype(np.bool_))
+        new_s = self.diseased & ~self.infected & self.transition
+        new_d = self.infected & self.diseased & self.transition
+        new_id = self.infected & ~self.diseased & self.transition
+        new_i = get_new_infections(~self.infected, self.ages, self.bact_load, rng)
 
-    diseased = diseased & ~new_s | new_d
-    infected = infected & ~new_d | new_i
+        self.clock[new_i] = periods.latent_time(self.latent_period_base[new_i])
+        self.clock[new_id] = periods.id_time(
+            self.ID_period_base[new_id], self.infection_counter[new_id]
+        )
+        self.clock[new_d] = periods.d_time(
+            self.D_period_base[new_d], self.infection_counter[new_d], ages[new_d]
+        )
 
-    bact_load[new_d] = 0
-    bact_load[new_i] = get_load(infection_counter[new_i])
+        self.diseased = self.diseased & ~new_s | new_d
+        self.infected = self.infected & ~new_d | new_i
 
-    # housekeeping
-    infection_counter[new_i] += 1
-    clock -= -1
+        # bacterial load
+        self.bact_load[new_d] = 0
+        self.bact_load[new_i] = get_load(infection_counter[new_i])
+
+        # housekeeping
+        self.infection_counter[new_i] += 1
+        self.clock -= -1
+        self.age += 1
