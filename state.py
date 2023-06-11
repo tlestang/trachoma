@@ -66,17 +66,17 @@ class Population:
         self.infection_counter[dead] = 0
         self.ages[dead] = 0
 
-    def prevalence(age_bounds):
-        i = self.age <= age_bounds[0] | self.age > age_bounds[1]
+    def prevalence(self, age_bounds):
+        i = (self.ages >= age_bounds[0]) | (self.ages < age_bounds[1])
         return np.count_nonzero(self.diseased[i]) / np.count_nonzero(i)
 
-    def infection(age_bounds):
-        i = self.age <= age_bounds[0] | self.age > age_bounds[1]
+    def infection(self, age_bounds):
+        i = (self.ages >= age_bounds[0]) | (self.ages < age_bounds[1])
         return np.count_nonzero(self.infected[i]) / np.count_nonzero(i)
 
-    def group_size(age_bounds):
+    def group_size(self, age_bounds):
         return np.count_nonzero(
-            i = self.age <= age_bounds[0] | self.age > age_bounds[1]
+            (self.ages >= age_bounds[0]) | (self.ages < age_bounds[1])
         )
 
     def yearly_high_infection_count(threshold):
