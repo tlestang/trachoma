@@ -21,9 +21,9 @@ def getlambdaStep(ages, bact_load):
     c = len(adults)/POP_SIZE
     epsm = 1 - EPSILON
     A = 1 - np.exp([
-        - prevLambda[0]*a + prevLambda[1]*epsm*b + prevLambda[2]*epsm*c,
-        - prevLambda[0]*a*epsm + prevLambda[1]*b + prevLambda[2]*epsm*c,
-        - prevLambda[0]*a*epsm + prevLambda[1]*epsm*b + prevLambda[2]*c,
+        - prevLambda[0]*a - prevLambda[1]*epsm*b - prevLambda[2]*epsm*c,
+        - prevLambda[0]*a*epsm - prevLambda[1]*b - prevLambda[2]*epsm*c,
+        - prevLambda[0]*a*epsm - prevLambda[1]*epsm*b - prevLambda[2]*c,
     ])
     returned = np.ones(POP_SIZE)
     returned[y_children] = A[0]
