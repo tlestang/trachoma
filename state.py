@@ -3,26 +3,29 @@ import numpy as np
 import periods
 from infection import get_new_infections, get_load
 import parameters as p
-
+from init import infected
 
 class Population:
 
     def __init__(self, ages):
+
+        self.rng = np.random.default_rng()
+
         self.size = len(ages)
         self.ages = ages
-        self.infected = np.zeros(self.size, dtype=np.bool_)
+
         self.diseased = np.zeros(self.size, dtype=np.bool_)
         self.clock = np.zeros(self.size) - 1
         self.infection_counter = np.zeros(self.size)
         self.bact_load = np.zeros(self.size)
 
-        self.rng = np.random.default_rng()
 
         # Baseline disease periods
         self.latent_period_base = np.zeros(p.POP_SIZE) + 2
         self.ID_period_base=self.rng.poisson(lam=p.AV_ID_DURATION, size=p.POP_SIZE)
         self.D_period_base=self.rng.poisson(lam=p.AV_D_DURATION, size=p.POP_SIZE)
 
+        self.infected = infected(self.size, 0.01, self.rng)
 
     def tick(self):
         transition = np.logical_not(self.clock.astype(np.bool_))
