@@ -26,6 +26,10 @@ class Population:
         self.D_period_base=self.rng.poisson(lam=p.AV_D_DURATION, size=p.POP_SIZE)
 
         self.infected = infected(self.size, 0.01, self.rng)
+        self.clock[self.infected] = periods.latent_time(self.latent_period_base[self.infected])
+        self.bact_load[self.infected] = get_load(self.infection_counter[self.infected])
+        self.infection_counter[self.infected] = 1
+
 
     def tick(self):
         transition = np.logical_not(self.clock.astype(np.bool_))
