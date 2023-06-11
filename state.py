@@ -21,7 +21,7 @@ class Population:
 
 
         # Baseline disease periods
-        self.latent_period_base = np.zeros(p.POP_SIZE) + 2
+        self.latent_period_base = np.zeros(p.POP_SIZE) + 1
         self.ID_period_base=self.rng.poisson(lam=p.AV_ID_DURATION, size=p.POP_SIZE)
         self.D_period_base=self.rng.poisson(lam=p.AV_D_DURATION, size=p.POP_SIZE)
 
@@ -46,7 +46,7 @@ class Population:
             self.D_period_base[new_d], self.infection_counter[new_d], self.ages[new_d]
         )
 
-        self.diseased = self.diseased & ~new_s | new_d
+        self.diseased = self.diseased & ~new_s | new_id
         self.infected = self.infected & ~new_d | new_i
 
         # bacterial load
@@ -55,12 +55,12 @@ class Population:
 
         # housekeeping
         self.infection_counter[new_i] += 1
-        self.clock -= -1
+        self.clock += -1
         self.ages += 1
 
         # Death
         dead = (self.rng.uniform(0, 1, self.size) < p.bgrd_death_rate) | (self.ages > p.MAX_AGE)
-        self.clock[dead] = 0
+        self.clock[dead] = -1
         self.diseased[dead] = 0
         self.infected[dead] = 0
         self.infection_counter[dead] = 0
