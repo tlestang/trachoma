@@ -9,16 +9,16 @@ def getlambdaStep(ages, bact_load):
     adults = ages >= 15 * 52
 
     totalLoad = np.array([
-        np.sum(bact_load[y_children]) / len(y_children),
-        np.sum(bact_load[o_children]) / len(o_children),
-        np.sum(bact_load[adults]) / len(adults)
+        np.sum(bact_load[y_children]) / np.count_nonzero(y_children),
+        np.sum(bact_load[o_children]) / np.count_nonzero(o_children),
+        np.sum(bact_load[adults]) / np.count_nonzero(adults)
     ])
     # [lambda1, lambda2, lambda3]
     prevLambda = BET * (V_1 * totalLoad + V_2 * (totalLoad ** (PHI + 1)))
 
-    a = len(y_children)/POP_SIZE
-    b = len(o_children)/POP_SIZE
-    c = len(adults)/POP_SIZE
+    a = np.count_nonzero(y_children) / POP_SIZE
+    b = np.count_nonzero(o_children) / POP_SIZE
+    c = np.count_nonzero(adults) / POP_SIZE
     epsm = 1 - EPSILON
     A = 1 - np.exp([
         - prevLambda[0]*a - prevLambda[1]*epsm*b - prevLambda[2]*epsm*c,
