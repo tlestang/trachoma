@@ -36,7 +36,7 @@ def get_new_infections(susceptibles, ages, bact_load, rng):
     prob = getlambdaStep(ages, bact_load)
     target_size = np.count_nonzero(susceptibles)
     newinf = np.zeros(ages.size, dtype=np.bool_)
-    newinf[susceptibles] = rng.uniform(size=target_size) < prob[susceptibles]
+    newinf[susceptibles] = np.random.uniform(size=target_size) < prob[susceptibles]
     return newinf
 
 
