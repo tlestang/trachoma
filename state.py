@@ -25,44 +25,49 @@ class Population:
         self.ID_period_base=self.rng.poisson(lam=p.AV_ID_DURATION, size=p.POP_SIZE)
         self.D_period_base=self.rng.poisson(lam=p.AV_D_DURATION, size=p.POP_SIZE)
 
-        self.infected = infected(self.size, 0.01, self.rng)
-        self.clock[self.infected] = periods.latent_time(self.latent_period_base[self.infected])
-        self.bact_load[self.infected] = get_load(self.infection_counter[self.infected])
-        self.infection_counter[self.infected] = 1
+        self.latent = infected(self.size, 0.01, self.rng)
+        self.infected = self.latent.copy()
+        self.clock[self.latent] = periods.latent_time(self.latent_period_base[self.latent])
+        self.bact_load[self.latent] = get_load(self.infection_counter[self.latent])
+        self.infection_counter[self.latent] = 1
 
 
     def tick(self):
+        self.clock += -1
         transition = np.logical_not(self.clock.astype(np.bool_))
         new_s = self.diseased & ~self.infected & transition
-        new_d = self.infected & self.diseased & transition
-        new_id = self.infected & ~self.diseased & transition
+        new_d = self.infected & ~self.latent & transition
+        clearinf = self.latent & transition
         new_i = get_new_infections(~self.infected, self.ages, self.bact_load, self.rng)
+        idx = np.array(range(0, 1000))
+        import pdb; pdb.set_trace()
 
-        self.clock[new_i] = periods.latent_time(self.latent_period_base[new_i])
-        self.clock[new_id] = periods.id_time(
-            self.ID_period_base[new_id], self.infection_counter[new_id]
-        )
         self.clock[new_d] = periods.d_time(
             self.D_period_base[new_d], self.infection_counter[new_d], self.ages[new_d]
         )
+        self.clock[clearinf] = periods.id_time(
+            self.ID_period_base[clearinf], self.infection_counter[clearinf]
+        )
+        self.clock[new_i] = periods.latent_time(self.latent_period_base[new_i])
 
-        self.diseased = self.diseased & ~new_s | new_id
+        self.diseased = self.diseased & ~new_s | clearinf
         self.infected = self.infected & ~new_d | new_i
+        self.latent = self.latent & ~clearinf | new_i
 
         # bacterial load
         self.bact_load[new_d] = 0
-        self.bact_load[new_i] = get_load(self.infection_counter[new_i])
+        self.bact_load[clearinf] = get_load(self.infection_counter[clearinf])
 
         # housekeeping
         self.infection_counter[new_i] += 1
-        self.clock += -1
         self.ages += 1
 
         # Death
         dead = (np.random.uniform(0, 1, self.size) < p.bgrd_death_rate) | (self.ages > p.MAX_AGE)
         self.clock[dead] = -1
-        self.diseased[dead] = 0
-        self.infected[dead] = 0
+        self.diseased[dead] = False
+        self.infected[dead] = False
+        self.latent[dead] = False
         self.infection_counter[dead] = 0
         self.ages[dead] = 0
 

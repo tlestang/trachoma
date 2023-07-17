@@ -12,15 +12,22 @@ with open("out.p", "rb") as f:
     vals = pickle.load(f)
 
 pop = Population(vals['Age'].copy())
+# pop.diseased = (vals['T_D'] > 0).astype(bool)
+# pop.ID = (vals['T_ID'] > 0).astype(bool)
+# pop.latent = (vals['T_latent'] > 0).astype(bool)
+
 pop.diseased = vals['IndD'].astype(bool)
 pop.infected = vals['IndI'].astype(bool)
+pop.latent = (vals['T_latent'] > 0).astype(bool)
 
-dtv = (~vals['IndI'].astype(bool) & vals['IndD'].astype(bool))
-pop.clock[dtv] = vals['T_D'][dtv]
-itv = (~vals['IndD'].astype(bool) & vals['IndI'].astype(bool))
-pop.clock[itv] = vals['T_latent'][itv]
-idtv = (vals['IndD'].astype(bool) & vals['IndI'].astype(bool))
-pop.clock[idtv] = vals['T_ID'][idtv]
+# dtv = (~vals['IndI'].astype(bool) & vals['IndD'].astype(bool))
+# pop.clock[dtv] = vals['T_D'][dtv]
+# itv = (~vals['IndD'].astype(bool) & vals['IndI'].astype(bool))
+# pop.clock[itv] = vals['T_latent'][itv]
+# idtv = (vals['IndD'].astype(bool) & vals['IndI'].astype(bool))
+# pop.clock[idtv] = vals['T_ID'][idtv]
+
+pop.clock = vals['T_latent'] + vals['T_ID'] + vals['T_D']
 
 pop.infection_counter = vals['No_Inf'].copy()
 pop.bact_load = vals['bact_load'].copy()
