@@ -19,11 +19,11 @@ bactld = np.array(
         0.16027857,
     ], dtype=np.float64
 )
-A = np.zeros(3, dtype=np.float64);
+prob = np.zeros(16, dtype=np.float64)
 
-Apy = infection.getlambdaStep(ages, bactld)
+probpy = infection.getlambdaStep(ages, bactld)
 
-lib.get_thresh.restype = None
+lib.get_infection_prob.restype = None
 
 argtypes = [
     ndpointer(dtype=np.int32, ndim=1),
@@ -31,6 +31,6 @@ argtypes = [
     ndpointer(dtype=np.float64, ndim=1),
     c_int,
 ]
-lib.get_thresh.argtypes = argtypes
+lib.get_infection_prob.argtypes = argtypes
 
-lib.get_thresh(ages, bactld, A, 16)
+lib.get_infection_prob(ages, bactld, prob, 16)
