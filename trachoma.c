@@ -32,9 +32,9 @@ void apply_rules(uint8_t *inf,
 #define PHI 1.4
 #define EPSILON 0.5
 
-void get_thresh(int *ages, double *bactld, double *A, int n) {
-  int count_indivs, igroup, k;
-  double lam[3], pop_ratio[3], one_over_popsize, meanld, ld;
+void get_thresh(int *ages, double *ld, double *A, int n) {
+  int n_prev, n_ingroup, igroup, k;
+  double lam[3], pop_ratio[3], one_over_popsize, meanld, sum_ld;
   unsigned int groups[] = {468, 780, 3121}; int ngroups = 3;
   double epsm;
 
@@ -42,13 +42,15 @@ void get_thresh(int *ages, double *bactld, double *A, int n) {
   one_over_popsize = 1. / n;
   epsm = 1. - EPSILON;
   
-  for (count_indivs = 0, igroup = 0; count_indivs < n; ++igroup) {
-    for(ld = 0; ages[k] < groups[igroup]; ld += bactld[k++])
-      ;
-    meanld = ld / (k - count_indivs);
+  for (k = 0, igroup = 0; igroup < ngroups; ++igroup) {
+    n_prev = k;
+    for(sum_ld = 0; (ages[k] < groups[igroup]) &&  k < n; ++k)
+      sum_ld += ld[k];
+
+    n_ingroup = (k - n_prev);
+    meanld = sum_ld / n_ingroup;
     lam[igroup] = BETA * V_1 * meanld + BETA * V_2 * pow(meanld, PHI + 1);
-    pop_ratio[igroup] = (double)(k - count_indivs) * one_over_popsize;
-    count_indivs = k;
+    pop_ratio[igroup] = (double)n_ingroup * one_over_popsize;
   }
     
   A[0] = -lam[0]*pop_ratio[0] - lam[1]*epsm*pop_ratio[1] - lam[2]*epsm*pop_ratio[2];
