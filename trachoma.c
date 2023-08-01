@@ -3,12 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void get_infection_prob(int*, double*, double*,
+			int*, int, int);
+
 void apply_rules(uint8_t *inf,
 		 uint8_t *dis,
 		 uint8_t *lat,
 		 int *clock, int *ages, double *bactload, int n) {
   int i, nblocks, j;
-  uint8_t new_s, new_d, clearinf, trans, isinf;
+  uint8_t new_s, new_d, clearinf, trans, isinf, infect;
+  uint8_t *new_i;
   int groups[] = {468, 780, 3121}; int ngroups;
   double *prob;
 
@@ -19,11 +23,12 @@ void apply_rules(uint8_t *inf,
   prob = (double *) malloc(sizeof(double) * n);
   get_infection_prob(ages, bactload, prob, groups, ngroups, n);
 
+  new_i = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
   for (i = 0; i < nblocks; ++i) {
     trans = 0;
     for (j=0; j < 8; ++j) {
       trans |= (((uint8_t)(!clock[j + i * 8])) << (7 - j));
-      isinf = (inf[i] << j) & '\x80'
+      isinf = (inf[i] << j) & '\x80';
       infect = !isinf && ((rand() / RAND_MAX) < prob[j + i * 8]);
       new_i[i] |= infect << (7 - j);
     }
@@ -33,10 +38,11 @@ void apply_rules(uint8_t *inf,
     clearinf = *(lat+i) & trans;
 
     dis[i] = dis[i] & ~new_s | clearinf;
-    inf[i] = inf[i] & ~new_d | new_i;
-    lat[i] = lat[i] & ~clearinf | new_i;
+    inf[i] = inf[i] & ~new_d | new_i[i];
+    lat[i] = lat[i] & ~clearinf | new_i[i];
   }
   free(prob);
+  free(new_i);
 }
 
 #define BETA 0.21
@@ -50,7 +56,7 @@ void get_infection_prob(int *ages, double *ld, double *prob,
   int n_prev, n_ingroup, igroup, k;
   double lam[3], pop_ratio[3], one_over_popsize, meanld, sum_ld;
   // unsigned int groups[] = {468, 780, 3121};
-  double epsm;
+  double epsm, *A;
 
   k = 0;
   one_over_popsize = 1. / n;
