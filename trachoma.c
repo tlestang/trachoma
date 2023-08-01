@@ -20,6 +20,7 @@ void apply_rules(uint8_t *inf,
 
   ngroups = 3;
 
+  // TODO: Sort ages and bactload here
   prob = (double *) malloc(sizeof(double) * n);
   get_infection_prob(ages, bactload, prob, groups, ngroups, n);
 
@@ -40,10 +41,51 @@ void apply_rules(uint8_t *inf,
     dis[i] = dis[i] & ~new_s | clearinf;
     inf[i] = inf[i] & ~new_d | new_i[i];
     lat[i] = lat[i] & ~clearinf | new_i[i];
+
+    for (j=0; j < 8; ++j) {
+
+      k = j + i * 8;
+      // TODO: set MAXAGE and define bgd_death()
+      if (ages[k] == MAX_AGE || bgd_death()) {
+	clock[k] = -1;
+	count[k] = 0;
+	ages[k] = -1;
+	mask = ~(1 << (7 - j));
+	dis[i] &= mask;
+	inf[i] &= mask;
+	lat[i] &= mask;
+	continue;
+      }
+
+      isnewd = (new_d << j) & '\x80';
+      isclearinf = (clearinf << j) & '\x80';
+      isnewi = (new_i << j) & '\x80';
+
+      if (!(isnewd || isclearinf || isnewi))
+	continue;
+
+      // TODO: Implement time functions
+      if (isnewd) {
+	clock[k] = setdtime(D_base[k], count[k], ages[k]);
+	bactload[k] = 0.;
+	continue;
+      } else if (isclearinf) {
+	clock[k] = setidtime(ID_base[k], count[k], ages[k]);
+	bactload[k] = get_load(count[k]);
+	continue;
+      } else if (isnewi) {
+	clock[k] = setlatenttime(latent_base[k], count[k], ages[k]);
+	count[k]++;
+      }
+    }
+    for (j=0; j < 8; ++j)
+      ages[k] += 1;
   }
   free(prob);
   free(new_i);
 }
+
+
 
 #define BETA 0.21
 #define V_1 1.
