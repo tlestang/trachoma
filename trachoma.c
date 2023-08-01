@@ -32,10 +32,11 @@ void apply_rules(uint8_t *inf,
 #define PHI 1.4
 #define EPSILON 0.5
 
-void get_thresh(int *ages, double *ld, double *A, int n) {
+void get_infection_prob(int *ages, double *ld, double *prob,
+		int *groups, int ngroups, int n) {
   int n_prev, n_ingroup, igroup, k;
   double lam[3], pop_ratio[3], one_over_popsize, meanld, sum_ld;
-  unsigned int groups[] = {468, 780, 3121}; int ngroups = 3;
+  // unsigned int groups[] = {468, 780, 3121};
   double epsm;
 
   k = 0;
@@ -52,11 +53,15 @@ void get_thresh(int *ages, double *ld, double *A, int n) {
     lam[igroup] = BETA * V_1 * meanld + BETA * V_2 * pow(meanld, PHI + 1);
     pop_ratio[igroup] = (double)n_ingroup * one_over_popsize;
   }
-    
+
+  A = (double *) malloc(sizeof(double) * ngroups);
   A[0] = -lam[0]*pop_ratio[0] - lam[1]*epsm*pop_ratio[1] - lam[2]*epsm*pop_ratio[2];
   A[1] = -lam[0]*pop_ratio[0]*epsm - lam[1]*pop_ratio[1] - lam[2]*epsm*pop_ratio[2];
   A[2] = -lam[0]*pop_ratio[0]*epsm - lam[1]*epsm*pop_ratio[1] - lam[2]*pop_ratio[2];
 
-  for (igroup = 0; igroup < 3; ++igroup)
-    A[igroup] = 1. - exp(A[igroup]);
+  for (k = 0, igroup = 0; igroup < ngroups; ++igroup) {
+    while ((ages[k] < groups[igroup]) &&  k < n)
+      prob[k++] = 1. - exp(A[igroup]);
+  }
+  free(A);
 }
