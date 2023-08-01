@@ -1,29 +1,42 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void apply_rules(uint8_t *inf,
 		 uint8_t *dis,
 		 uint8_t *lat,
-		 int *clock, int n) {
+		 int *clock, int *ages, double *bactload, int n) {
   int i, nblocks, j;
-  uint8_t new_s, new_d, clearinf, trans;
+  uint8_t new_s, new_d, clearinf, trans, isinf;
+  int groups[] = {468, 780, 3121}; int ngroups;
+  double *prob;
 
   nblocks = n / 8;
 
+  ngroups = 3;
+
+  prob = (double *) malloc(sizeof(double) * n);
+  get_infection_prob(ages, bactload, prob, groups, ngroups, n);
+
   for (i = 0; i < nblocks; ++i) {
     trans = 0;
-    for (j=0; j < 8; ++j)
+    for (j=0; j < 8; ++j) {
       trans |= (((uint8_t)(!clock[j + i * 8])) << (7 - j));
+      isinf = (inf[i] << j) & '\x80'
+      infect = !isinf && ((rand() / RAND_MAX) < prob[j + i * 8]);
+      new_i[i] |= infect << (7 - j);
+    }
 
     new_s = *(dis+i) & ~*(inf+i) & trans;
     new_d = *(inf+i) & ~*(lat+i) & trans;
     clearinf = *(lat+i) & trans;
 
     dis[i] = dis[i] & ~new_s | clearinf;
-    inf[i] = inf[i] & ~new_d; // | new_i;
-    lat[i] = lat[i] & ~clearinf; // | new_i;
+    inf[i] = inf[i] & ~new_d | new_i;
+    lat[i] = lat[i] & ~clearinf | new_i;
   }
+  free(prob);
 }
 
 #define BETA 0.21
