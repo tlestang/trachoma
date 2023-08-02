@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "periods.h"
+
 void get_infection_prob(int*, double*, double*,
 			int*, int, int);
 
