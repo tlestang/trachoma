@@ -142,8 +142,50 @@ double get_load(int ninf) {
 
 int main() {
   int n = 16;
-  int nblocks = n / sizeof(uint8_t);
+  int nblocks = n / 8;
   prob = (double *) malloc(sizeof(double) * n);
   new_i = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
 
+  inf = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
+  dis = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
+  lat = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
+  clock = (int *) malloc(sizeof(int) * n);
+  ages = (int *) malloc(sizeof(int) * n);
+  count = (int *) malloc(sizeof(int) * n);
+  bactload = (double *) malloc(sizeof(double) * n);
+
+  ID_base = (int *) malloc(sizeof(int) * n);
+  D_base = (int *) malloc(sizeof(int) * n);
+  latent_base = (int *) malloc(sizeof(int) * n);
+
+  int ages_l[] = {203,  388,  586,  846, 1323, 1327, 1400, 1446, 1824, 1917, 2032, 2222, 2650, 2840, 2850, 2889};
+
+  inf[0] =139; inf[1] = 202;
+  dis[0] = 62; dis[1] = 26;
+  lat[0] = 129; lat[1] = 229;
+  int i;
+  for (i = 0; i < n; ++i) {
+    count[i] = 0;
+    clock[i] = 2;
+    ages[i] = ages_l[i];
+    bactload[i] = 0.;
+    ID_base[i] = 2;
+    latent_base[i] = 2;
+    D_base[i] = 2;
+  }
+  clock[0] = 0; clock[1] = -1;
+  clock[5] = 0; clock[10] = 0;
+  clock[12] = 0;
+
+  printbytearray(inf, nblocks);
+  printbytearray(dis, nblocks);
+  printbytearray(lat, nblocks);
+
+  apply_rules(n, nblocks);
+
+  printf("%c", '\n');
+
+  printbytearray(inf, nblocks);
+  printbytearray(dis, nblocks);
+  printbytearray(lat, nblocks);
 }
