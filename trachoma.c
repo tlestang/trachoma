@@ -7,43 +7,31 @@
 #include "shift.h"
 
 #define MAX_AGE 3120
+#define TAU 1. / (40. * 52.)
 
 int *D_base, *ID_base, *latent_base;
 
-void get_infection_prob(int*, double*, double*,
-			int*, int, int);
+uint8_t *inf, *dis, *lat, *new_i;
+int *clock, *ages, *count;
+double *bactload, *prob;
+
+int groups[] = {468, 780, 3121}; int ngroups = 3;
+
+const double BGD_DEATH_RATE = 1. - exp(TAU);
+
+void get_infection_prob(int);
 double get_load(int);
 
-void apply_rules(uint8_t *inf,
-		 uint8_t *dis,
-		 uint8_t *lat,
-		 int *clock,
-		 int *ages,
-		 int *count,
-		 double *bactload,
-		 int n) {
-  int i, nblocks, j, k;
-  uint8_t new_s, new_d, clearinf, trans, isinf, infect;
-  uint8_t isnewd, isclearinf, isnewi;
-  uint8_t *new_i;
-  int groups[] = {468, 780, 3121}; int ngroups;
-  double *prob;
+void apply_rules(int n, int nblocks) {
+  int i, j, k;
 
-  double TAU = 1. / (40. * 52.);
-  double BGD_DEATH_RATE = 1 - exp(TAU);
+  get_infection_prob(n);
 
-  nblocks = n / 8;
-
-  ngroups = 3;
-
-  prob = (double *) malloc(sizeof(double) * n);
-  get_infection_prob(ages, bactload, prob, groups, ngroups, n);
-
-  new_i = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
   // if first indiv in byte is at MAX_AGE, then all indivs after are
   // as well. No need to process these blocks.
   for (i = 0; i < nblocks && (ages[i * 8] < MAX_AGE); ++i) {
-    trans = 0;
+    uint8_t trans = 0;
+    uint8_t isinf, infect;
     for (j=0; j < 8; ++j) {
       k = j + i * 8;
       trans |= (((uint8_t)(!clock[k])) << (7 - j));
@@ -52,28 +40,31 @@ void apply_rules(uint8_t *inf,
       new_i[i] |= infect << (7 - j);
     }
 
-    new_s = *(dis+i) & ~*(inf+i) & trans;
-    new_d = *(inf+i) & ~*(lat+i) & trans;
-    clearinf = *(lat+i) & trans;
+    uint8_t new_s = *(dis+i) & ~*(inf+i) & trans;
+    uint8_t new_d = *(inf+i) & ~*(lat+i) & trans;
+    uint8_t clearinf = *(lat+i) & trans;
 
     dis[i] = dis[i] & ~new_s | clearinf;
     inf[i] = inf[i] & ~new_d | new_i[i];
     lat[i] = lat[i] & ~clearinf | new_i[i];
 
-    isnewd = (new_d << j) & '\x80';
-    isclearinf = (clearinf << j) & '\x80';
-    isnewi = (new_i[i] << j) & '\x80';
-    if (isnewd) {
+    for (j=0; j < 8; ++j) {
+      k = j + i * 8;
+      uint8_t isnewd = (new_d << j) & '\x80';
+      uint8_t isclearinf = (clearinf << j) & '\x80';
+      uint8_t isnewi = (new_i[i] << j) & '\x80';
+      if (isnewd) {
 	clock[k] = setdtime(D_base[k], count[k], ages[k]);
 	bactload[k] = 0.;
 	continue;
-    } else if (isclearinf) {
+      } else if (isclearinf) {
 	clock[k] = setidtime(ID_base[k], count[k], ages[k]);
 	bactload[k] = get_load(count[k]);
 	continue;
-    } else if (isnewi) {
+      } else if (isnewi) {
 	clock[k] = setlatenttime(latent_base[k], count[k], ages[k]);
 	count[k]++;
+      }
     }
   } // nblocks
 
@@ -99,9 +90,6 @@ void apply_rules(uint8_t *inf,
   rotate_bitarray(inf, n - i, nblocks);
   rotate_bitarray(dis, n - i, nblocks);
   rotate_bitarray(lat, n - i, nblocks);
-
-  free(prob);
-  free(new_i);
 }
 
 
@@ -112,8 +100,7 @@ void apply_rules(uint8_t *inf,
 #define PHI 1.4
 #define EPSILON 0.5
 
-void get_infection_prob(int *ages, double *ld, double *prob,
-		int *groups, int ngroups, int n) {
+void get_infection_prob(int n) {
   int n_prev, n_ingroup, igroup, k;
   double lam[3], pop_ratio[3], one_over_popsize, meanld, sum_ld;
   // unsigned int groups[] = {468, 780, 3121};
@@ -126,7 +113,7 @@ void get_infection_prob(int *ages, double *ld, double *prob,
   for (k = 0, igroup = 0; igroup < ngroups; ++igroup) {
     n_prev = k;
     for(sum_ld = 0; (ages[k] < groups[igroup]) &&  k < n; ++k)
-      sum_ld += ld[k];
+      sum_ld += bactload[k];
 
     n_ingroup = (k - n_prev);
     meanld = sum_ld / n_ingroup;
@@ -150,4 +137,12 @@ double get_load(int ninf) {
   double b1 = 1., ep2 =  - 0.114;
 
   return b1 * exp((ninf - 1) * ep2);
+}
+
+int main() {
+  int n = 16;
+  int nblocks = n / sizeof(uint8_t);
+  prob = (double *) malloc(sizeof(double) * n);
+  new_i = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
+
 }
