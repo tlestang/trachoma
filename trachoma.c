@@ -70,7 +70,7 @@ void apply_rules(int n, int nblocks) {
   } // nblocks
 
   // Background mortality
-  for (i = 0; ages[i] < MAX_AGE; ++i) {
+  for (i = 0; ages[i] < MAX_AGE && i < n; ++i) {
     if (rand() / (double)RAND_MAX < BGD_DEATH_RATE) {
       bgd_death_bitarray(inf, i, nblocks);
       bgd_death_bitarray(dis, i, nblocks);
