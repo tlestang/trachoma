@@ -8,6 +8,7 @@
 
 void get_infection_prob(int*, double*, double*,
 			int*, int, int);
+double get_load(int);
 
 void apply_rules(uint8_t *inf,
 		 uint8_t *dis,
@@ -131,4 +132,10 @@ void get_infection_prob(int *ages, double *ld, double *prob,
       prob[k++] = 1. - exp(A[igroup]);
   }
   free(A);
+}
+
+double get_load(int ninf) {
+  double b1 = 1., ep2 =  - 0.114;
+
+  return b1 * exp((ninf - 1) * ep2);
 }
