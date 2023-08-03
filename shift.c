@@ -42,7 +42,6 @@ void rotate_bitarray(uint8_t *A, int n, int size) {
   int i, k;
   k = n / 8;
   shift(A, n%8, size - k);
-  printbytearray(A, size);
   for (i = size-1; i >= k; --i)
     A[i] = A[i - k];
   for (i = 0; i < k; ++i)
