@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "periods.h"
+#include "shift.h"
 
 void get_infection_prob(int*, double*, double*,
 			int*, int, int);
@@ -12,7 +13,7 @@ void apply_rules(uint8_t *inf,
 		 uint8_t *dis,
 		 uint8_t *lat,
 		 int *clock, int *ages, double *bactload, int n) {
-  int i, nblocks, j;
+  int i, nblocks, j, k;
   uint8_t new_s, new_d, clearinf, trans, isinf, infect;
   uint8_t *new_i;
   int groups[] = {468, 780, 3121}; int ngroups;
@@ -22,17 +23,19 @@ void apply_rules(uint8_t *inf,
 
   ngroups = 3;
 
-  // TODO: Sort ages and bactload here
   prob = (double *) malloc(sizeof(double) * n);
   get_infection_prob(ages, bactload, prob, groups, ngroups, n);
 
   new_i = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
-  for (i = 0; i < nblocks; ++i) {
+  // if first indiv in byte is at MAX_AGE, then all indivs after are
+  // as well. No need to process these blocks.
+  for (i = 0; i < nblocks && (ages[i * 8] < MAX_AGE); ++i) {
     trans = 0;
     for (j=0; j < 8; ++j) {
-      trans |= (((uint8_t)(!clock[j + i * 8])) << (7 - j));
+      k = j + i * 8;
+      trans |= (((uint8_t)(!clock[k])) << (7 - j));
       isinf = (inf[i] << j) & '\x80';
-      infect = !isinf && ((rand() / RAND_MAX) < prob[j + i * 8]);
+      infect = !isinf && ((rand() / RAND_MAX) < prob[k]);
       new_i[i] |= infect << (7 - j);
     }
 
@@ -44,45 +47,48 @@ void apply_rules(uint8_t *inf,
     inf[i] = inf[i] & ~new_d | new_i[i];
     lat[i] = lat[i] & ~clearinf | new_i[i];
 
-    for (j=0; j < 8; ++j) {
-
-      k = j + i * 8;
-      // TODO: set MAXAGE and define bgd_death()
-      if (ages[k] == MAX_AGE || bgd_death()) {
-	clock[k] = -1;
-	count[k] = 0;
-	ages[k] = -1;
-	mask = ~(1 << (7 - j));
-	dis[i] &= mask;
-	inf[i] &= mask;
-	lat[i] &= mask;
-	continue;
-      }
-
-      isnewd = (new_d << j) & '\x80';
-      isclearinf = (clearinf << j) & '\x80';
-      isnewi = (new_i << j) & '\x80';
-
-      if (!(isnewd || isclearinf || isnewi))
-	continue;
-
-      // TODO: Implement time functions
-      if (isnewd) {
+    isnewd = (new_d << j) & '\x80';
+    isclearinf = (clearinf << j) & '\x80';
+    isnewi = (new_i << j) & '\x80';
+    if (isnewd) {
 	clock[k] = setdtime(D_base[k], count[k], ages[k]);
 	bactload[k] = 0.;
 	continue;
-      } else if (isclearinf) {
+    } else if (isclearinf) {
 	clock[k] = setidtime(ID_base[k], count[k], ages[k]);
 	bactload[k] = get_load(count[k]);
 	continue;
-      } else if (isnewi) {
+    } else if (isnewi) {
 	clock[k] = setlatenttime(latent_base[k], count[k], ages[k]);
 	count[k]++;
-      }
     }
-    for (j=0; j < 8; ++j)
-      ages[k] += 1;
+  } // nblocks
+
+  for (i = 0; ages[i] < MAX_AGE; ++i) {
+    if (rand() / RAND_MAX < BGD_DEATH_RATE) {
+      bgd_death_bitarray(inf, i, nblocks);
+      bgd_death_bitarray(dis, i, nblocks);
+      bgd_death_bitarray(lat, i, nblocks);
+    }
+
+    ages[i] += 1;
   }
+  for (j = n - 1; j >= n - i; --j) {
+    clock[j] = clock[j - n - i];
+    count[j] = count[j - n - i];
+    ages[j] = ages[j - n - i];
+    bactload[j] = bactload[j - n - i];
+  }
+  for (j = 0; j < n - i; ++j) {
+    clock[j] = -1;
+    count[j] = 0;
+    ages[j] = 0;
+    bactload[j] = 0.;
+  }
+  rotate_bitarray(inf, n - i, nblocks);
+  rotate_bitarray(dis, n - i, nblocks);
+  rotate_bitarray(lat, n - i, nblocks);
+
   free(prob);
   free(new_i);
 }

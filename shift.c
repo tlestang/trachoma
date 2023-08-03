@@ -25,7 +25,7 @@ void shift(uint8_t * A, int shift, int size) {
   }
 }
 
-void bgd_death(uint8_t *A, int idx, int size) {
+void bgd_death_bitarray(uint8_t *A, int idx, int size) {
   uint8_t buf, mask;
   int n, m, i;
   m = idx % 8; // local index in byte block
@@ -38,7 +38,7 @@ void bgd_death(uint8_t *A, int idx, int size) {
   A[n-1] = (A[n-1] & ~mask) | buf;
 }
 
-void rotate(uint8_t *A, int n, int size) {
+void rotate_bitarray(uint8_t *A, int n, int size) {
   int i, k;
   k = n / 8;
   shift(A, n%8, size - k);
