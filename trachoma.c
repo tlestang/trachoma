@@ -17,7 +17,7 @@ double *bactload, *prob;
 
 int groups[] = {468, 780, 3121}; int ngroups = 3;
 
-const double BGD_DEATH_RATE = 1. - exp(TAU);
+const double BGD_DEATH_RATE = -2.; //1. - exp(TAU);
 
 void get_infection_prob(int);
 double get_load(int);
