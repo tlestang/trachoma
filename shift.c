@@ -49,6 +49,22 @@ void rotate_bitarray(uint8_t *A, int n, int size) {
     A[i] = 0;
 }
 
+void rotate(int *a, int n, int size, int val) {
+  int j;
+  for (j = size - 1; j >= n; --j)
+    a[j] = a[j - n];
+  for (j = 0; j < n; ++j)
+    a[j] = val;
+}
+
+void rotate_double(double *a, int n, int size, double val) {
+  int j;
+  for (j = size - 1; j >= n; --j)
+    a[j] = a[j - n];
+  for (j = 0; j < n; ++j)
+    a[j] = val;
+}
+
 int main() {
   uint8_t b[] = {72, 98, 13, 56, 112};
   int n = 5, i;

@@ -64,27 +64,25 @@ void apply_rules(uint8_t *inf,
     }
   } // nblocks
 
+  // Background mortality
   for (i = 0; ages[i] < MAX_AGE; ++i) {
     if (rand() / RAND_MAX < BGD_DEATH_RATE) {
       bgd_death_bitarray(inf, i, nblocks);
       bgd_death_bitarray(dis, i, nblocks);
       bgd_death_bitarray(lat, i, nblocks);
+      rotate(clock, 1, i + 1, -1);
+      rotate(ages, 1, i + 1, 0);
+      rotate(count, 1, i + 1, 0);
+      rotate_double(bactload, 1, i + 1, 0.);
     }
-
     ages[i] += 1;
   }
-  for (j = n - 1; j >= n - i; --j) {
-    clock[j] = clock[j - n - i];
-    count[j] = count[j - n - i];
-    ages[j] = ages[j - n - i];
-    bactload[j] = bactload[j - n - i];
-  }
-  for (j = 0; j < n - i; ++j) {
-    clock[j] = -1;
-    count[j] = 0;
-    ages[j] = 0;
-    bactload[j] = 0.;
-  }
+
+  // Natural death for people aged > MAX_AGE
+  rotate(clock, i, n, -1);
+  rotate(count, i, n, 0);
+  rotate(ages, i, n, 0);
+  rotate_double(bactload, i, n, 0.);
   rotate_bitarray(inf, n - i, nblocks);
   rotate_bitarray(dis, n - i, nblocks);
   rotate_bitarray(lat, n - i, nblocks);
