@@ -65,13 +65,13 @@ void rotate_double(double *a, int n, int size, double val) {
     a[j] = val;
 }
 
-int main() {
-  uint8_t b[] = {72, 98, 13, 56, 112};
-  int n = 5, i;
-  uint8_t buf[2];
-  printbytearray(b, n);
-  //rotate(b, 17, n);
-  bgd_death(b, 23, n);
-  // shift(b, 3, 5);
-  printbytearray(b, n);
-}
+/* int main() { */
+/*   uint8_t b[] = {72, 98, 13, 56, 112}; */
+/*   int n = 5, i; */
+/*   uint8_t buf[2]; */
+/*   printbytearray(b, n); */
+/*   //rotate(b, 17, n); */
+/*   bgd_death(b, 23, n); */
+/*   // shift(b, 3, 5); */
+/*   printbytearray(b, n); */
+/* } */

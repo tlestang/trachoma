@@ -6,6 +6,10 @@
 #include "periods.h"
 #include "shift.h"
 
+#define MAX_AGE 3120
+
+int *D_base, *ID_base, *latent_base;
+
 void get_infection_prob(int*, double*, double*,
 			int*, int, int);
 double get_load(int);
@@ -13,12 +17,20 @@ double get_load(int);
 void apply_rules(uint8_t *inf,
 		 uint8_t *dis,
 		 uint8_t *lat,
-		 int *clock, int *ages, double *bactload, int n) {
+		 int *clock,
+		 int *ages,
+		 int *count,
+		 double *bactload,
+		 int n) {
   int i, nblocks, j, k;
   uint8_t new_s, new_d, clearinf, trans, isinf, infect;
+  uint8_t isnewd, isclearinf, isnewi;
   uint8_t *new_i;
   int groups[] = {468, 780, 3121}; int ngroups;
   double *prob;
+
+  double TAU = 1. / (40. * 52.);
+  double BGD_DEATH_RATE = 1 - exp(TAU);
 
   nblocks = n / 8;
 
@@ -50,7 +62,7 @@ void apply_rules(uint8_t *inf,
 
     isnewd = (new_d << j) & '\x80';
     isclearinf = (clearinf << j) & '\x80';
-    isnewi = (new_i << j) & '\x80';
+    isnewi = (new_i[i] << j) & '\x80';
     if (isnewd) {
 	clock[k] = setdtime(D_base[k], count[k], ages[k]);
 	bactload[k] = 0.;
@@ -67,7 +79,7 @@ void apply_rules(uint8_t *inf,
 
   // Background mortality
   for (i = 0; ages[i] < MAX_AGE; ++i) {
-    if (rand() / RAND_MAX < BGD_DEATH_RATE) {
+    if (rand() / (double)RAND_MAX < BGD_DEATH_RATE) {
       bgd_death_bitarray(inf, i, nblocks);
       bgd_death_bitarray(dis, i, nblocks);
       bgd_death_bitarray(lat, i, nblocks);
