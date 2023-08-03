@@ -25,7 +25,7 @@ double get_load(int);
 void apply_rules(int n, int nblocks) {
   int i, j, k;
 
-  get_infection_prob(n);
+  // get_infection_prob(n);
 
   // if first indiv in byte is at MAX_AGE, then all indivs after are
   // as well. No need to process these blocks.
@@ -35,9 +35,10 @@ void apply_rules(int n, int nblocks) {
     for (j=0; j < 8; ++j) {
       k = j + i * 8;
       trans |= (((uint8_t)(!clock[k])) << (7 - j));
-      isinf = (inf[i] << j) & '\x80';
-      infect = !isinf && ((rand() / RAND_MAX) < prob[k]);
-      new_i[i] |= infect << (7 - j);
+      /* isinf = (inf[i] << j) & '\x80'; */
+      /* infect = !isinf && ((rand() / RAND_MAX) < prob[k]); */
+      /* new_i[i] |= infect << (7 - j); */
+      new_i[i] = 0;
     }
 
     uint8_t new_s = *(dis+i) & ~*(inf+i) & trans;
