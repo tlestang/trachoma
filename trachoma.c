@@ -61,24 +61,8 @@ void apply_rules(struct state st, int times) {
       st.inf[i] = st.inf[i] & ~new_d | new_i;
       st.lat[i] = st.lat[i] & ~clearinf | new_i;
 
-      for (j=0; j < 8; ++j) {
-	k = j + i * 8;
-	uint8_t isnewd = (new_d << j) & '\x80';
-	uint8_t isclearinf = (clearinf << j) & '\x80';
-	uint8_t isnewi = (new_i << j) & '\x80';
-	if (isnewd) {
-	  st.clockm[k] = setdtime(D_base[k], st.count[k], st.ages[k]);
-	  st.bactload[k] = 0.;
-	  continue;
-	} else if (isclearinf) {
-	  st.clockm[k] = setidtime(ID_base[k], st.count[k], st.ages[k]);
-	  st.bactload[k] = get_load(count[k]);
-	  continue;
-	} else if (isnewi) {
-	  st.clockm[k] = setlatenttime(latent_base[k], st.count[k], st.ages[k]);
-	  st.count[k]++;
-	}
-      }
+      update_indivs(new_i, clearinf, new_d,
+		    st.bactload, st.clockm, st.count);
     } // nblocks
 
     // Background mortality
@@ -104,6 +88,30 @@ void apply_rules(struct state st, int times) {
     rotate_bitarray(st.inf, nmax_age, nblocks);
     rotate_bitarray(st.dis, nmax_age, nblocks);
     rotate_bitarray(st.lat, nmax_age, nblocks);
+  }
+}
+
+void update_indivs(uint8_t new_i, uint8_t new_d,
+		   uint8_t clearinf, double bactload,
+		   int clockm, int count, int block_id) {
+  int j, k;
+  for (j=0; j < 8; ++j) {
+    k = j + block_id * 8;
+    uint8_t isnewd = (new_d << j) & '\x80';
+    uint8_t isclearinf = (clearinf << j) & '\x80';
+    uint8_t isnewi = (new_i << j) & '\x80';
+    if ((new_d << j) & '\x80') { // is new D
+      st.clockm[k] = setdtime(D_base[k], st.count[k], st.ages[k]);
+      st.bactload[k] = 0.;
+      continue;
+    } else if ((clearinf << j) & '\x80') { // is new clearinf
+      st.clockm[k] = setidtime(ID_base[k], st.count[k], st.ages[k]);
+      st.bactload[k] = get_load(count[k]);
+      continue;
+    } else if ((new_i << j) & '\x80') { // is new I
+      st.clockm[k] = setlatenttime(latent_base[k], st.count[k], st.ages[k]);
+      st.count[k]++;
+    }
   }
 }
 
