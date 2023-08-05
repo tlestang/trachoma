@@ -10,10 +10,7 @@
 #define TAU 1. / (40. * 52.)
 
 int *D_base, *ID_base, *latent_base;
-
-uint8_t *inf, *dis, *lat, *new_i;
-int *clockm, *ages, *count;
-double *bactload, *prob;
+double *prob;
 
 int groups[] = {468, 780, 3121}; int ngroups = 3;
 
@@ -22,77 +19,91 @@ const double BGD_DEATH_RATE = 1. - exp(-TAU);
 void get_infection_prob(int);
 double get_load(int);
 
-void apply_rules(int n, int nblocks, int times) {
+struct state {
+  int n;
+  uint8_t *inf;
+  uint8_t *dis;
+  uint8_t *lat;
+  int *clockm;
+  int *ages;
+  int *count;
+  double *bactload;
+};
+
+void apply_rules(struct state st, int times) {
   int i, j, k, t;
+
+  int nblocks = st.n / 8;
 
   for (t = 0; t < times; ++t) {
 
-    get_infection_prob(n);
+    get_infection_prob(st.n);
 
     // if first indiv in byte is at MAX_AGE, then all indivs after are
     // as well. No need to process these blocks.
-    for (i = 0; i < nblocks && (ages[i * 8] < MAX_AGE); ++i) {
-      uint8_t trans = 0;
+    for (i = 0; i < nblocks && (st.ages[i * 8] < MAX_AGE); ++i) {
+      uint8_t trans = 0, new_i = 0;
       uint8_t isinf, infect;
       for (j=0; j < 8; ++j) {
 	k = j + i * 8;
-	trans |= (((uint8_t)(!clockm[k])) << (7 - j));
-	isinf = (inf[i] << j) & '\x80';
+	trans |= (((uint8_t)(!st.clockm[k])) << (7 - j));
+	isinf = (st.inf[i] << j) & '\x80';
 	double draw = ((double)rand() / RAND_MAX);
         infect = !isinf && ( draw < prob[k]);
-	new_i[i] |= infect << (7 - j);
+	new_i |= infect << (7 - j);
       }
 
-      uint8_t new_s = *(dis+i) & ~*(inf+i) & trans;
-      uint8_t new_d = *(inf+i) & ~*(lat+i) & trans;
-      uint8_t clearinf = *(lat+i) & trans;
+      uint8_t new_s = *(st.dis+i) & ~*(st.inf+i) & trans;
+      uint8_t new_d = *(st.inf+i) & ~*(st.lat+i) & trans;
+      uint8_t clearinf = *(st.lat+i) & trans;
 
-      dis[i] = dis[i] & ~new_s | clearinf;
-      inf[i] = inf[i] & ~new_d | new_i[i];
-      lat[i] = lat[i] & ~clearinf | new_i[i];
+      st.dis[i] = st.dis[i] & ~new_s | clearinf;
+      st.inf[i] = st.inf[i] & ~new_d | new_i;
+      st.lat[i] = st.lat[i] & ~clearinf | new_i;
 
       for (j=0; j < 8; ++j) {
 	k = j + i * 8;
 	uint8_t isnewd = (new_d << j) & '\x80';
 	uint8_t isclearinf = (clearinf << j) & '\x80';
-	uint8_t isnewi = (new_i[i] << j) & '\x80';
+	uint8_t isnewi = (new_i << j) & '\x80';
 	if (isnewd) {
-	  clockm[k] = setdtime(D_base[k], count[k], ages[k]);
-	  bactload[k] = 0.;
+	  st.clockm[k] = setdtime(D_base[k], st.count[k], st.ages[k]);
+	  st.bactload[k] = 0.;
 	  continue;
 	} else if (isclearinf) {
-	  clockm[k] = setidtime(ID_base[k], count[k], ages[k]);
-	  bactload[k] = get_load(count[k]);
+	  st.clockm[k] = setidtime(ID_base[k], st.count[k], st.ages[k]);
+	  st.bactload[k] = get_load(count[k]);
 	  continue;
 	} else if (isnewi) {
-	  clockm[k] = setlatenttime(latent_base[k], count[k], ages[k]);
-	  count[k]++;
+	  st.clockm[k] = setlatenttime(latent_base[k], st.count[k], st.ages[k]);
+	  st.count[k]++;
 	}
       }
     } // nblocks
 
     // Background mortality
-    for (i = 0; ages[i] < MAX_AGE && i < n; ++i) {
+    for (i = 0; st.ages[i] < MAX_AGE && i < st.n; ++i) {
       if (rand() / (double)RAND_MAX < BGD_DEATH_RATE) {
-	bgd_death_bitarray(inf, i, nblocks);
-	bgd_death_bitarray(dis, i, nblocks);
-	bgd_death_bitarray(lat, i, nblocks);
-	rotate(clockm, 1, i + 1, -1);
-	rotate(ages, 1, i + 1, 0);
-	rotate(count, 1, i + 1, 0);
-	rotate_double(bactload, 1, i + 1, 0.);
+	bgd_death_bitarray(st.inf, i, nblocks);
+	bgd_death_bitarray(st.dis, i, nblocks);
+	bgd_death_bitarray(st.lat, i, nblocks);
+	rotate(st.clockm, 1, i + 1, -1);
+	rotate(st.ages, 1, i + 1, 0);
+	rotate(st.count, 1, i + 1, 0);
+	rotate_double(st.bactload, 1, i + 1, 0.);
       }
-      ages[i] += 1;
+      st.ages[i] += 1;
     }
 
     // Natural death for people aged > MAX_AGE
-    rotate(clockm, n - i, n, -1);
-    rotate(count, n - i, n, 0);
-    rotate(ages, n - i, n, 0);
-    rotate_double(bactload, n - i, n, 0.);
-    rotate_bitarray(inf, n - i, nblocks);
-    rotate_bitarray(dis, n - i, nblocks);
-    rotate_bitarray(lat, n - i, nblocks);
+    int nmax_age = st.n - i;
+    rotate(st.clockm, nmax_age, st.n, -1);
+    rotate(st.count, nmax_age, st.n, 0);
+    rotate(st.ages, nmax_age, st.n, 0);
+    rotate_double(st.bactload, nmax_age, st.n, 0.);
+    rotate_bitarray(st.inf, nmax_age, nblocks);
+    rotate_bitarray(st.dis, nmax_age, nblocks);
+    rotate_bitarray(st.lat, nmax_age, nblocks);
   }
 }
 
