@@ -65,29 +65,37 @@ void apply_rules(struct state st, int times) {
 		    st.bactload, st.clockm, st.count);
     } // nblocks
 
-    // Background mortality
-    for (i = 0; st.ages[i] < MAX_AGE && i < st.n; ++i) {
-      if (rand() / (double)RAND_MAX < BGD_DEATH_RATE) {
-	bgd_death_bitarray(st.inf, i, nblocks);
-	bgd_death_bitarray(st.dis, i, nblocks);
-	bgd_death_bitarray(st.lat, i, nblocks);
-	rotate(st.clockm, 1, i + 1, -1);
-	rotate(st.ages, 1, i + 1, 0);
-	rotate(st.count, 1, i + 1, 0);
-	rotate_double(st.bactload, 1, i + 1, 0.);
-      }
-      st.ages[i] += 1;
-    }
+    int n_old = background_mortality(st, BGD_DEATH_RATE, MAX_AGE);
+    old_age_mortality(st, n_old);
+  }
+}
 
-    // Natural death for people aged > MAX_AGE
-    int nmax_age = st.n - i;
-    rotate(st.clockm, nmax_age, st.n, -1);
-    rotate(st.count, nmax_age, st.n, 0);
-    rotate(st.ages, nmax_age, st.n, 0);
-    rotate_double(st.bactload, nmax_age, st.n, 0.);
-    rotate_bitarray(st.inf, nmax_age, nblocks);
-    rotate_bitarray(st.dis, nmax_age, nblocks);
-    rotate_bitarray(st.lat, nmax_age, nblocks);
+int background_mortality(struct state st, double rate, int max_age) {
+  int i;
+  for (i = 0; st.ages[i] < max_age && i < st.n; ++i) {
+    if (rand() / (double)RAND_MAX < rate) {
+      bgd_death_bitarray(st.inf, i, nblocks);
+      bgd_death_bitarray(st.dis, i, nblocks);
+      bgd_death_bitarray(st.lat, i, nblocks);
+      rotate(st.clockm, 1, i + 1, -1);
+      rotate(st.ages, 1, i + 1, 0);
+      rotate(st.count, 1, i + 1, 0);
+      rotate_double(st.bactload, 1, i + 1, 0.);
+    }
+    st.ages[i] += 1;
+  }
+  return st.n - i;
+}
+
+void old_age_mortality(struct state st, int nold) {
+  int nblocks = st.n / 8;
+  rotate(st.clockm, nold, st.n, -1);
+  rotate(st.count, nold, st.n, 0);
+  rotate(st.ages, nold, st.n, 0);
+  rotate_double(st.bactload, nold, st.n, 0.);
+  rotate_bitarray(st.inf, nold, nblocks);
+  rotate_bitarray(st.dis, nold, nblocks);
+  rotate_bitarray(st.lat, nold, nblocks);
   }
 }
 
