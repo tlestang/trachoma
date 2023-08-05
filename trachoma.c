@@ -158,7 +158,6 @@ int main() {
   int n = 16;
   int nblocks = n / 8;
   prob = (double *) malloc(sizeof(double) * n);
-  new_i = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
 
   inf = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
   dis = (uint8_t *) malloc(sizeof(uint8_t) * nblocks);
@@ -221,13 +220,12 @@ int main() {
 }
 
 void set_arrays(uint8_t *inf_m, uint8_t *dis_m, uint8_t *lat_m,
-	 uint8_t *new_i_m, int *clock_m, int *ages_m, int *count_m,
+	 int *clock_m, int *ages_m, int *count_m,
 	 double *bactload_m, double *prob_m) {
   ages = ages_m;
   inf = inf_m;
   dis = dis_m;
   lat = lat_m;
-  new_i = new_i_m;
   clockm = clock_m;
   count = count_m;
   bactload = bactload_m;
