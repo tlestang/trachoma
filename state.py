@@ -29,14 +29,15 @@ class Population:
         self.count = np.zeros(self.size, dtype=np.int32)
         self.bact_load = np.zeros(self.size, dtype=np.float64)
 
-        self._latent = np.packbits(infected(self.size, 0.01, rng))
-        self._inf = self.latent.copy()
-        self._dis = np.packbits(np.zeros(self.size))
+        latent = infected(self.size, 0.3, rng)
+        self._latent = np.packbits(latent)
+        self._inf = self._latent.copy()
+        self._dis = np.packbits(np.zeros(self.size, dtype=np.bool_))
 
-        self.clock[self.latent] = periods.latent_time(latent_base[self.latent])
-        self.count[self.latent] = 1
+        self.clock[latent] = periods.latent_time(latent_base[latent])
+        self.count[latent] = 1
         ninfected = np.sum(self.count)
-        self.bact_load[self.latent] = get_load(np.zeros(ninfected) + 1)
+        self.bact_load[latent] = get_load(np.zeros(ninfected) + 1)
 
     @property
     def _as_parameter_(self):
