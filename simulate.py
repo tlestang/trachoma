@@ -7,7 +7,7 @@ advance = lib.apply_rules
 advance.restype = None
 
 lib.set_base_periods.argtypes = [
-    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)
+    np.ctypeslib.ndpointer(dtype=np.int32, ndim=1)
 ] * 3
 
 
@@ -20,9 +20,13 @@ def simulate(p: Population, events: list):
 
 def set_base_periods(p, rng):
     base_periods = (
-        np.array([p.av_I_duration] * p.popsize, dtype=np.float64),
-        rng.poisson(lam=p.av_ID_duration, size=p.popsize),
-        rng.poisson(lam=p.av_D_duration, size=p.popsize),
+        np.array([p.av_I_duration] * p.population_size, dtype=np.int32),
+        rng.poisson(
+            lam=p.av_ID_duration, size=p.population_size
+        ).astype(np.int32),
+        rng.poisson(
+            lam=p.av_D_duration, size=p.population_size
+        ).astype(np.int32),
     )
     lib.set_base_periods(*base_periods)
     return base_periods
