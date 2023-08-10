@@ -48,9 +48,9 @@ class Population:
     def _as_parameter_(self):
         return Pop_c(
             self.size,
-            self.inf.ctypes.data_as(POINTER(c_ubyte)),
-            self.dis.ctypes.data_as(POINTER(c_ubyte)),
-            self.latent.ctypes.data_as(POINTER(c_ubyte)),
+            self._inf.ctypes.data_as(POINTER(c_ubyte)),
+            self._dis.ctypes.data_as(POINTER(c_ubyte)),
+            self._latent.ctypes.data_as(POINTER(c_ubyte)),
             self.clock.ctypes.data_as(POINTER(c_int)),
             self.ages.ctypes.data_as(POINTER(c_int)),
             self.count.ctypes.data_as(POINTER(c_int)),
