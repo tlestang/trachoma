@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+import json
+from pathlib import Path
 import sys
 
 import mda
@@ -20,7 +22,9 @@ def process_intervention(inter: dict, gen_dates):
     ]
 
 
-def process_scenario_definition(d: dict):
+def process_scenario_definition(path: Path):
+    with path.open() as f:
+        d = json.load(f)
     all_events = [
         (mda.start_sim, datetime.fromisoformat(d["start"])),
         (mda.end_sim, datetime.fromisoformat(d["end"]))
