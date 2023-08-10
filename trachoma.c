@@ -248,7 +248,7 @@ void set_arrays(uint8_t *inf_m, uint8_t *dis_m, uint8_t *lat_m,
   prob = prob_m;
 }
 
-void set_times(int *D_base_m, int *ID_base_m, int *latent_base_m) {
+void set_base_periods(int *latent_base_m, *ID_base_m, int *D_base_m) {
   D_base = D_base_m;
   ID_base = ID_base_m;
   latent_base = latent_base_m;
