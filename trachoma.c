@@ -7,7 +7,6 @@
 #include "shift.h"
 
 int *D_base, *ID_base, *latent_base;
-double *prob;
 
 int *groups, ngroups;
 
@@ -24,7 +23,7 @@ struct state {
   double *bactload;
 };
 
-void get_infection_prob(int*, double*, int, double);
+void get_infection_prob(int*, double*, int, double, double*);
 double get_load(int);
 void update_indivs(struct state, uint8_t, uint8_t, uint8_t, int);
 int background_mortality(struct state, double, int);
@@ -34,10 +33,11 @@ void apply_rules(struct state st, int times, double beta) {
   int i, j, k, t;
 
   int nblocks = st.n / 8;
+  double *prob = (double *) malloc(st.n * sizeof(double));
 
   for (t = 0; t < times; ++t) {
 
-    get_infection_prob(st.ages, st.bactload, st.n, beta);
+    get_infection_prob(st.ages, st.bactload, st.n, beta, prob);
 
     // if first indiv in byte is at max_age, then all indivs after are
     // as well. No need to process these blocks.
@@ -68,6 +68,7 @@ void apply_rules(struct state st, int times, double beta) {
     int n_old = background_mortality(st, BGD_DEATH_RATE, max_age);
     old_age_mortality(st, n_old);
   }
+  free(prob);
 }
 
 int background_mortality(struct state st, double rate, int max_age) {
@@ -129,7 +130,8 @@ double V_2;
 double phi;
 double epsilon;
 
-void get_infection_prob(int *ages, double* bactload, int n, double beta) {
+void get_infection_prob(int *ages, double* bactload, int n,
+			double beta, double *prob) {
   int n_prev, n_ingroup, igroup, k;
   double lam[3], pop_ratio[3], one_over_popsize, meanld, sum_ld;
   // unsigned int groups[] = {468, 780, 3121};
