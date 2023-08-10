@@ -1,4 +1,4 @@
-from collections import dataclass
+from dataclasses import dataclass
 import json
 
 
