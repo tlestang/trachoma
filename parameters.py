@@ -4,7 +4,7 @@ import json
 
 @dataclass
 class SimulationParameters:
-    popsize: int
+    population_size: int
     max_age: int
     mean_age: int
     v1: float
