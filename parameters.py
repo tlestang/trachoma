@@ -1,25 +1,29 @@
-import numpy as np
+from collections import dataclass
+import json
 
 
-V_1 = 1
-V_2 = 2.6
-PHI = 1.4
-T_LATENT = 2
-T_ID = 2
-T_D = 2
-POP_SIZE = 1000
-NWEEKS = 52
-MAX_AGE = 60 * NWEEKS
-MEAN_AGE = 20 * NWEEKS
-AV_I_DURATION=2
-AV_ID_DURATION=200 / 7
-AV_D_DURATION=300 / 7
-BET = 0.21
-EPSILON = 0.5
-INF_RED = 0.45
-MIN_D = 1
-MIN_ID = 11
-AG = 0.00179
-AQ = 0.0368
-TAU = 1. / (40 * 52)
-bgrd_death_rate = 1 - np.exp(TAU)
+@dataclass
+class SimulationParameters:
+    popsize: int
+    max_age: int
+    mean_age: int
+    v1: float
+    v2: float
+    phi: float
+    epsilon: float
+    av_I_duration: float
+    av_ID_duration: float
+    av_D_duration: float
+    inf_red: float
+    min_d: int
+    min_id: int
+    ag: float
+    aq: float
+    tau: int
+    groups: list
+
+
+def get_params(path):
+    with open(path, 'r') as f:
+        d = json.load(f)
+    return SimulationParameters(**d)

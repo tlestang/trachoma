@@ -1,4 +1,4 @@
-from ctypes import CDLL
+from ctypes import CDLL, c_double, c_int
 import numpy as np
 from state import Population
 
@@ -26,3 +26,31 @@ def set_base_periods(p, rng):
     )
     lib.set_base_periods(*base_periods)
     return base_periods
+
+
+def set_infection_parameters(p):
+    lib.set_infection_parameters.restype = None
+    lib.set_infection_parameters.argtypes = [c_double] * 4
+    lib.set_infection_parameters(
+        c_double(p.v1),
+        c_double(p.v2),
+        c_double(p.phi),
+        c_double(p.epsilon),
+    )
+
+
+def set_background_mortality(p):
+    rate = 1. - np.exp(- 1. / p.tau)
+    lib.set_background_mortality.restype = None
+    lib.set_background_mortality.argtypes = [c_double]
+    lib.set_background_mortality(
+        c_double(rate)
+    )
+
+
+def set_groups(p):
+    groups = p.groups + [p.max_age]
+    array_type = c_double * len(groups)
+    lib.set_groups.restype = None
+    lib.set_groups.argtypes = [array_type, c_int]
+    lib.set_groups(array_type(groups), len(groups))

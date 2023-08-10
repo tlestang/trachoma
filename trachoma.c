@@ -6,15 +6,12 @@
 #include "periods.h"
 #include "shift.h"
 
-#define MAX_AGE 3120
-#define TAU 1. / (40. * 52.)
-
 int *D_base, *ID_base, *latent_base;
 double *prob;
 
-int groups[] = {468, 780, 3121}; int ngroups = 3;
+int *groups, ngroups;
 
-const double BGD_DEATH_RATE = 1. - exp(-TAU);
+double BGD_DEATH_RATE;
 
 void get_infection_prob(int);
 double get_load(int);
@@ -39,9 +36,10 @@ void apply_rules(struct state st, int times) {
 
     get_infection_prob(st.n);
 
-    // if first indiv in byte is at MAX_AGE, then all indivs after are
+    // if first indiv in byte is at max_age, then all indivs after are
     // as well. No need to process these blocks.
-    for (i = 0; i < nblocks && (st.ages[i * 8] < MAX_AGE); ++i) {
+    int max_age = groups[ngroups - 1];
+    for (i = 0; i < nblocks && (st.ages[i * 8] < max_age); ++i) {
       uint8_t trans = 0, new_i = 0;
       uint8_t isinf, infect;
       for (j=0; j < 8; ++j) {
@@ -65,7 +63,7 @@ void apply_rules(struct state st, int times) {
 		    st.bactload, st.clockm, st.count);
     } // nblocks
 
-    int n_old = background_mortality(st, BGD_DEATH_RATE, MAX_AGE);
+    int n_old = background_mortality(st, BGD_DEATH_RATE, max_age);
     old_age_mortality(st, n_old);
   }
 }
@@ -252,4 +250,21 @@ void set_base_periods(int *latent_base_m, *ID_base_m, int *D_base_m) {
   D_base = D_base_m;
   ID_base = ID_base_m;
   latent_base = latent_base_m;
+}
+
+void set_infection_parameters(double v1_m, double v2_m,
+			      double phi_m, double eps_m) {
+  V_1 = v1_m;
+  V_2 = v2_m;
+  PHI = phi_m;
+  EPSILON = eps_m;
+}
+
+void set_background_mortality(double rate) {
+  BGD_DEATH_RATE = rate
+}
+
+void set_groups(int groups_m[], int ngroups_m) {
+  groups = groups_m;
+  ngroups = ngroups_m;
 }
