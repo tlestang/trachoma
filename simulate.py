@@ -57,4 +57,4 @@ def set_groups(p):
     array_type = c_double * len(groups)
     lib.set_groups.restype = None
     lib.set_groups.argtypes = [array_type, c_int]
-    lib.set_groups(array_type(groups), len(groups))
+    lib.set_groups(array_type(*groups), len(groups))
