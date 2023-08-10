@@ -2,7 +2,6 @@ import ctypes
 from ctypes import POINTER, c_int, c_double, c_ubyte
 import numpy as np
 
-import periods
 from infection import get_load
 from init import infected
 
@@ -34,7 +33,13 @@ class Population:
         self._inf = self._latent.copy()
         self._dis = np.packbits(np.zeros(self.size, dtype=np.bool_))
 
-        self.clock[latent] = periods.latent_time(latent_base[latent])
+        lib = ctypes.CDLL("./libtrachoma.so")
+        lib.setlatenttime.restype = ctypes.c_int
+        lib.setlatenttime.argtypes = [ctypes.c_int] * 3
+        self.clock[latent] = [
+            lib.setlatenttime.latent_period(base, 0, age)
+            for age, base in zip(self.ages[latent], latent_base[latent])
+        ]
         self.count[latent] = 1
         ninfected = np.sum(self.count)
         self.bact_load[latent] = get_load(np.zeros(ninfected) + 1)

@@ -19,5 +19,5 @@ int setdtime(int base, int count, int age) {
 }
 
 int setlatenttime(int base, int count, int age) {
-  return base;
+  return (int)base;
 }
