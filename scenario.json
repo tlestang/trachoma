@@ -1,0 +1,17 @@
+{
+    "programs": [
+	{
+	    "start": "2008-01-01",
+	    "end": "2011-01-01",
+	    "interventions": [
+		{
+		    "type": "MDA",
+		    "coverage": 0.7,
+		    "interval": 52,
+		    "efficacy": 0.85,
+		    "rho": 0.2
+		}
+	    ]
+	}
+    ]
+}
