@@ -21,7 +21,10 @@ def process_intervention(inter: dict, gen_dates):
 
 
 def process_scenario_definition(d: dict):
-    all_events = []
+    all_events = [
+        (mda.start_sim, datetime.fromisoformat(d["start"])),
+        (mda.end_sim, datetime.fromisoformat(d["end"]))
+    ]
     for p in d["programs"]:
         start = datetime.fromisoformat(p["start"])
         end = datetime.fromisoformat(p["end"])
@@ -37,4 +40,6 @@ def process_scenario_definition(d: dict):
                 p["interventions"]
         ):
             all_events.extend(events)
+    # TODO What if first event is at the same time as
+    # start_sim event?
     return sorted(all_events, key=lambda x: x[1])

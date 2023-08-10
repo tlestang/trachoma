@@ -36,3 +36,11 @@ class MDA:
         self.count += 1
 
         return ntreated, np.count_nonzero(cured)
+
+
+def start_sim(pop):
+    pass
+
+
+def end_sim(pop):
+    pass
