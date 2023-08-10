@@ -24,7 +24,7 @@ class Population:
     def __init__(self, ages, latent_base, rng):
 
         self.size = len(ages)
-        self.ages = ages.astype(np.int32)
+        self.ages = np.sort(ages).astype(np.int32)
         self.clock = np.zeros(self.size, dtype=np.int32) - 1
         self.count = np.zeros(self.size, dtype=np.int32)
         self.bact_load = np.zeros(self.size, dtype=np.float64)
