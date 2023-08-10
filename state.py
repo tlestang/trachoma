@@ -2,7 +2,6 @@ import ctypes
 from ctypes import POINTER, c_int, c_double, c_ubyte
 import numpy as np
 
-from infection import get_load
 from init import infected
 
 
@@ -42,7 +41,11 @@ class Population:
         ]
         self.count[latent] = 1
         ninfected = np.sum(self.count)
-        self.bact_load[latent] = get_load(np.zeros(ninfected) + 1)
+        lib.get_load.restype = ctypes.c_double
+        lib.get_load.argtypes = [ctypes.c_int]
+        self.bact_load[latent] = [
+            lib.get_load(1) for _ in range(ninfected)
+        ]
 
     @property
     def _as_parameter_(self):
