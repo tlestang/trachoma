@@ -10,7 +10,10 @@ void printbytearray(uint8_t *b, int n) {
   }
 }
 
-void shift(uint8_t * A, int shift, int size) {
+/* Shift an array of bytes 'shift' bits to the right 'shift' is
+* assumed to be <= 8, i.e. does not span multiple bytes.
+*/
+void shift(uint8_t *A, int shift, int size) {
   int i;
   uint8_t buf[2], mask;
   for (i = 0, mask = 1; i < shift; ++i)
@@ -25,6 +28,17 @@ void shift(uint8_t * A, int shift, int size) {
   }
 }
 
+/* Shift all bits in byte array by 1 to the right, up to bit no 'idx'
+*  (included).
+*  Example (assuming 4 4-bit words):
+*                   |
+*  a b c d    e f g h i    j k l m    n o p q
+*  bgd_death_bitarray(A, 7, 4)
+*  0 a b c    d e f g i    j k l m    n o p q
+*
+* In the above, bit 'h' is replaced by leading 0, while all bits up to
+* 'h' are shifted by 1 to the right.
+*/
 void bgd_death_bitarray(uint8_t *A, int idx, int size) {
   uint8_t buf, mask;
   int n, m, i;
@@ -38,6 +52,9 @@ void bgd_death_bitarray(uint8_t *A, int idx, int size) {
   A[n-1] = (A[n-1] & ~mask) | buf;
 }
 
+/* Shift byte array n bits to the right, where n can be more then 8
+ *   bits. This is a more general version of 'shift' above.  Used to
+ *   implement old age mortatlity. */
 void rotate_bitarray(uint8_t *A, int n, int size) {
   int i, k;
   k = n / 8;
