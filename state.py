@@ -36,7 +36,7 @@ class Population:
         lib.setlatenttime.restype = ctypes.c_int
         lib.setlatenttime.argtypes = [ctypes.c_int] * 3
         self.clock[latent] = [
-            lib.setlatenttime.latent_period(base, 0, age)
+            lib.setlatenttime(base, 0, age)
             for age, base in zip(self.ages[latent], latent_base[latent])
         ]
         self.count[latent] = 1
