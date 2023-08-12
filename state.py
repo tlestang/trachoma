@@ -28,8 +28,8 @@ class Population:
         self.bact_load = np.zeros(self.size, dtype=np.float64)
 
         latent = infected(self.size, 0.3, rng)
-        self._latent = np.packbits(latent)
-        self._inf = self._latent.copy()
+        self._lat = np.packbits(latent)
+        self._inf = self._lat.copy()
         self._dis = np.packbits(np.zeros(self.size, dtype=np.bool_))
 
         lib = ctypes.CDLL("./libtrachoma.so")
@@ -53,7 +53,7 @@ class Population:
             self.size,
             self._inf.ctypes.data_as(POINTER(c_ubyte)),
             self._dis.ctypes.data_as(POINTER(c_ubyte)),
-            self._latent.ctypes.data_as(POINTER(c_ubyte)),
+            self._lat.ctypes.data_as(POINTER(c_ubyte)),
             self.clock.ctypes.data_as(POINTER(c_int)),
             self.ages.ctypes.data_as(POINTER(c_int)),
             self.count.ctypes.data_as(POINTER(c_int)),
