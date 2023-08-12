@@ -76,3 +76,32 @@ def test_remove_individual():
     nptest.assert_array_equal(expected_clock, pop.clock)
     nptest.assert_array_equal(expected_count, pop.count)
     nptest.assert_array_equal(expected_bact_load, pop.bact_load)
+
+
+def test_old_age_mortality():
+    ages = np.array(range(24))
+    latent_base = np.array([2] * 24)
+    rng = np.random.default_rng()
+    pop = Population(ages, latent_base, rng)
+
+    pop.inf = np.array(
+        [
+            1, 0, 1, 1, 1, 0, 1, 0,
+            0, 1, 1, 1, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1
+        ]
+    )
+
+    expected_ages = np.array([0] * 11 + list(range(13)))
+    expected_inf = np.array(
+        [
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 1, 0, 1, 1, 1,
+            0, 1, 0, 0, 1, 1, 1, 0,
+        ]
+    )
+    lib.old_age_mortality.restype = None
+    lib.old_age_mortality(pop, 11)
+
+    nptest.assert_array_equal(expected_inf, pop.inf)
+    nptest.assert_array_equal(expected_ages, pop.ages)
