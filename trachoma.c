@@ -26,7 +26,7 @@ struct state {
 void get_infection_prob(int*, double*, int, double, double*);
 double get_load(int);
 void update_indivs(struct state, uint8_t, uint8_t, uint8_t, int);
-int background_mortality(struct state, double, int);
+void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
 void apply_rules(struct state st, int times, double beta) {
@@ -65,28 +65,27 @@ void apply_rules(struct state st, int times, double beta) {
       update_indivs(st, new_i, clearinf, new_d, i);
     } // nblocks
 
-    int n_old = background_mortality(st, BGD_DEATH_RATE, max_age);
-    old_age_mortality(st, n_old);
+    /* Apply background mortality */
+    for (i = 0; st.ages[i] < max_age && i < st.n; ++i) {
+      if (rand() / (double)RAND_MAX < BGD_DEATH_RATE)
+	remove_indiv(st, i);
+      st.ages[i]++;
+    }
+
+    old_age_mortality(st, st.n - i);
   }
   free(prob);
 }
 
-int background_mortality(struct state st, double rate, int max_age) {
-  int i;
+void remove_indiv(struct state st, int idx) {
   int nblocks = st.n / 8;
-  for (i = 0; st.ages[i] < max_age && i < st.n; ++i) {
-    if (rand() / (double)RAND_MAX < rate) {
-      bgd_death_bitarray(st.inf, i, nblocks);
-      bgd_death_bitarray(st.dis, i, nblocks);
-      bgd_death_bitarray(st.lat, i, nblocks);
-      rotate(st.clockm, 1, i + 1, -1);
-      rotate(st.ages, 1, i + 1, 0);
-      rotate(st.count, 1, i + 1, 0);
-      rotate_double(st.bactload, 1, i + 1, 0.);
-    }
-    st.ages[i] += 1;
-  }
-  return st.n - i;
+  bgd_death_bitarray(st.inf, idx, nblocks);
+  bgd_death_bitarray(st.dis, idx, nblocks);
+  bgd_death_bitarray(st.lat, idx, nblocks);
+  rotate(st.clockm, 1, idx + 1, -1);
+  rotate(st.ages, 1, idx + 1, 0);
+  rotate(st.count, 1, idx + 1, 0);
+  rotate_double(st.bactload, 1, idx + 1, 0.);
 }
 
 void old_age_mortality(struct state st, int nold) {
