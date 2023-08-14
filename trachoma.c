@@ -123,6 +123,8 @@ void update_indivs(struct state st, uint8_t new_i, uint8_t new_d,
       st.bactload[k] = get_load(st.count[k]);
       st.count[k]++;
     }
+    else
+      st.clockm[k]--;
   }
 }
 
