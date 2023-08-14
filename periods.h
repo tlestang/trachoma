@@ -1,3 +1,3 @@
-int setidtime(double base, int count, int age);
-int setdtime(double base, int count, int age);
-int setlatenttime(double base, int count, int age);
+int setidtime(int, int, int);
+int setdtime(int, int, int);
+int setlatenttime(int, int, int);
