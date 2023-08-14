@@ -111,9 +111,6 @@ void update_indivs(struct state st, uint8_t new_i, uint8_t new_d,
   int j, k;
   for (j=0; j < 8; ++j) {
     k = j + block_id * 8;
-    uint8_t isnewd = (new_d << j) & '\x80';
-    uint8_t isclearinf = (clearinf << j) & '\x80';
-    uint8_t isnewi = (new_i << j) & '\x80';
     if ((new_d << j) & 0x80) { // is new D
       st.clockm[k] = setdtime(D_base[k], st.count[k], st.ages[k]);
       st.bactload[k] = 0.;
