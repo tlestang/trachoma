@@ -25,7 +25,7 @@ struct state {
 
 void get_infection_prob(int*, double*, int, double, double*);
 double get_load(int);
-void update_indivs(struct state, uint8_t, uint8_t, uint8_t, int);
+void spread(struct state, uint8_t, int);
 void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
@@ -43,26 +43,13 @@ void apply_rules(struct state st, int times, double beta) {
     // as well. No need to process these blocks.
     int max_age = groups[ngroups - 1];
     for (i = 0; i < nblocks && (st.ages[i * 8] < max_age); ++i) {
-      uint8_t trans = 0, new_i = 0;
-      uint8_t isinf, infect;
-      for (j=0; j < 8; ++j) {
-	k = j + i * 8;
-	trans |= (((uint8_t)(!st.clockm[k])) << (7 - j));
+      uint8_t new_i = 0, isinf, infect;
+      for (j = 0; j < 8; ++j) {
 	isinf = (st.inf[i] << j) & '\x80';
-	double draw = ((double)rand() / RAND_MAX);
-        infect = !isinf && ( draw < prob[k]);
+	infect = !isinf && ((double)rand() / RAND_MAX < prob[k]);
 	new_i |= infect << (7 - j);
       }
-
-      uint8_t new_s = *(st.dis+i) & ~*(st.inf+i) & trans;
-      uint8_t new_d = *(st.inf+i) & ~*(st.lat+i) & trans;
-      uint8_t clearinf = *(st.lat+i) & trans;
-
-      st.dis[i] = st.dis[i] & ~new_s | clearinf;
-      st.inf[i] = st.inf[i] & ~new_d | new_i;
-      st.lat[i] = st.lat[i] & ~clearinf | new_i;
-
-      update_indivs(st, new_i, clearinf, new_d, i);
+      spread(st, new_i, i);
     } // nblocks
 
     /* Apply background mortality */
@@ -75,6 +62,26 @@ void apply_rules(struct state st, int times, double beta) {
     old_age_mortality(st, st.n - i);
   }
   free(prob);
+}
+
+void update_indivs(struct state, uint8_t, uint8_t, uint8_t, int);
+
+void spread(struct state st, uint8_t new_i, int blk) {
+  uint8_t trans = 0;
+  int j, k;
+  for (j=0; j < 8; ++j) {
+    k = j + blk * 8;
+    trans |= (((uint8_t)(!st.clockm[k])) << (7 - j));
+  }
+  uint8_t new_s = st.dis[blk] & ~st.inf[blk] & trans;
+  uint8_t new_d = st.inf[blk] & ~st.lat[blk] & trans;
+  uint8_t clearinf = st.lat[blk] & trans;
+
+  update_indivs(st, new_i, clearinf, new_d, blk);
+
+  st.dis[blk] = st.dis[blk] & ~new_s | clearinf;
+  st.inf[blk] = st.inf[blk] & ~new_d | new_i;
+  st.lat[blk] = st.lat[blk] & ~clearinf | new_i;
 }
 
 void remove_indiv(struct state st, int idx) {
