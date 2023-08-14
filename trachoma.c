@@ -77,7 +77,7 @@ void spread(struct state st, uint8_t new_i, int blk) {
   uint8_t new_d = st.inf[blk] & ~st.lat[blk] & trans;
   uint8_t clearinf = st.lat[blk] & trans;
 
-  update_indivs(st, new_i, clearinf, new_d, blk);
+  update_indivs(st, new_i, new_d, clearinf, blk);
 
   st.dis[blk] = st.dis[blk] & ~new_s | clearinf;
   st.inf[blk] = st.inf[blk] & ~new_d | new_i;
