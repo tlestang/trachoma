@@ -13,7 +13,13 @@ lib.set_base_periods.argtypes = [
 
 def simulate(p: Population, events: list, beta: float):
     for e, e_next in zip(events[:-1], events[1:]):
-        nsteps = int((e_next[1] - e[1]).days / 7)
+        ndays = (e_next[1] - e[1]).days
+        if (ndays % 7):
+            print(
+                "WARNING: Duration between {e[1]} and {e_next[1]} "
+                "is not a multiple of a week.\n"
+            )
+        nsteps = ndays // 7
         advance(p, nsteps, c_double(beta))
         e_next[0](p)
 
