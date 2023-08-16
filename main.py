@@ -30,13 +30,8 @@ def parse_args():
 
 
 def main(args):
-    # events = process_scenario_definition(args.scenario_path)
-    from datetime import datetime, timedelta
-    from mda import start_sim, end_sim
-    events = [
-        (start_sim, datetime(2008, 1, 1)),
-        (end_sim, datetime(2008, 1, 1) + timedelta(weeks=3)),
-     ]
+    events = process_scenario_definition(args.scenario_path)
+
     p = get_params(args.parameters_path)
 
     rng = np.random.default_rng()
