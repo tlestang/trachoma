@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 import json
 from pathlib import Path
 import sys
@@ -15,10 +14,10 @@ def process_intervention(inter: dict, gen_dates):
             f"Error: could not find event type {t}.\n"
         )
         return []
-    interval = timedelta(weeks=inter.pop("interval"))
+    interval = inter.pop("interval")
     event = cls(**inter)
     return [
-        (event, date) for date in gen_dates(interval)
+        (date, event) for date in gen_dates(interval)
     ]
 
 
@@ -26,16 +25,16 @@ def process_scenario_definition(path: Path):
     with path.open() as f:
         d = json.load(f)
     all_events = [
-        (mda.start_sim, datetime.fromisoformat(d["start"])),
-        (mda.end_sim, datetime.fromisoformat(d["end"]))
+        (d["start"], mda.start_sim),
+        (d["end"], mda.end_sim),
     ]
     for p in d["programs"]:
-        start = datetime.fromisoformat(p["start"])
-        end = datetime.fromisoformat(p["end"])
+        start = p["start"]
+        end = p["end"]
 
         def gen_dates(interval):
             date = start
-            while(date <= end):
+            while (date < end):
                 yield date
                 date += interval
 
@@ -46,4 +45,4 @@ def process_scenario_definition(path: Path):
             all_events.extend(events)
     # TODO What if first event is at the same time as
     # start_sim event?
-    return sorted(all_events, key=lambda x: x[1])
+    return sorted(all_events, key=lambda x: x[0])
