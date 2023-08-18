@@ -30,7 +30,7 @@ void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
 void apply_rules(struct state st, int times, double beta) {
-  int i, j, k, t;
+  int i, j, t;
 
   int nblocks = st.n / 8;
   double *prob = (double *) malloc(st.n * sizeof(double));
@@ -46,6 +46,7 @@ void apply_rules(struct state st, int times, double beta) {
       uint8_t new_i = 0, isinf, infect;
       for (j = 0; j < 8; ++j) {
 	isinf = (st.inf[i] << j) & '\x80';
+	int k = j + i * 8;
 	infect = !isinf && ((double)rand() / RAND_MAX < prob[k]);
 	new_i |= infect << (7 - j);
       }
