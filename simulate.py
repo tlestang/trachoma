@@ -11,10 +11,11 @@ lib.set_base_periods.argtypes = [
 ] * 3
 
 
-def simulate(p: Population, events: list, beta: float):
-    for e, e_next in zip(events[:-1], events[1:]):
-        advance(p, e_next[0] - e[0], c_double(beta))
-        e_next[1](p)
+def simulate(task: list, events: list):
+    for p, beta in task:
+        for e, e_next in zip(events[:-1], events[1:]):
+            advance(p, e_next[0] - e[0], c_double(beta))
+            e_next[1](p)
 
 
 def set_base_periods(p, rng):

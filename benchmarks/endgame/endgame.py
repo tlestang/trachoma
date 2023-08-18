@@ -1,4 +1,5 @@
-import argparse
+import sys
+sys.path.append("../../")
 from copy import deepcopy
 from pathlib import Path
 from threading import Thread
@@ -16,7 +17,7 @@ BETA_PATH = Path("k_values.txt")
 PARAMETERS_PATH = Path("parameters.json")
 
 
-def main(args):
+def main():
     events = process_scenario_definition(SCENARIO_PATH)
 
     p = get_params(PARAMETERS_PATH)
@@ -36,10 +37,19 @@ def main(args):
         kvalues = [
             float(line) for line in f
         ]
-    pop_objs = [deepcopy(p) for k in kvalues]
+    NTHREADS = 1
+    task_size = len(kvalues) // NTHREADS
+    tasks = [
+        [(deepcopy(p), k) for k in kvalues[i * task_size:(i + 1) * task_size]]
+        for i in range(0, NTHREADS)
+    ]
+    if (len(kvalues) % NTHREADS):
+        tasks[-1].extend(
+            [(deepcopy(p), k) for k in kvalues[NTHREADS * task_size:]]
+        )
     threads = [
-        Thread(target=simulate.simulate, args=(p, events, k))
-        for k, p in zip(kvalues, pop_objs)
+        Thread(target=simulate.simulate, args=(task, events))
+        for task in tasks
     ]
     for t in threads:
         t.start()
