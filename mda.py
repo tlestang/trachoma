@@ -4,20 +4,28 @@ import numpy as np
 class MDA:
     def __init__(self, coverage, efficacy, rho):
         self.a = (1. / rho) - 1
+        self.coverage = coverage
         self.b = self.a * coverage
         self.rng = np.random.default_rng()
         self.count = 0
         self.efficacy = efficacy
 
-    def distribute(self, popsize):
+    def distribute(self, popsize, treatment_count):
         p = (
-            self.b + self.treatment_count
+            self.b + treatment_count
         ) / (self.a + self.count)
-        print(f"p = {p}")
         return (self.rng.uniform(size=popsize) < p)
 
     def __call__(self, pop):
-        t = self.distribute(pop.size)
+        attrname = f"mda_{id(self)}_treatment_count"
+        try:
+            treatment_count = getattr(pop, attrname)
+            t = self.distribute(pop.size, treatment_count)
+            treatment_count[t] += 1
+        except AttributeError:
+            t = self.rng.uniform(size=pop.size) < self.coverage
+            setattr(pop, attrname, t.astype(np.int32))
+
         ntreated = np.count_nonzero(t)
         cured = np.zeros(pop.size, dtype=np.bool_)
         cured[t] = self.rng.uniform(size=ntreated) < self.efficacy
@@ -25,13 +33,6 @@ class MDA:
         inf[cured] = False
         pop.inf = inf
         pop.bact_load[cured] = 0
-
-        attrname = f"mda_{id(self)}_treatment_count"
-        try:
-            treatment_count = getattr(pop, attrname)
-            treatment_count[t] += 1
-        except AttributeError:
-            setattr(pop, attrname, t.astype(np.int32))
 
         self.count += 1
 
