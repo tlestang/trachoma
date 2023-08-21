@@ -1,11 +1,10 @@
 from ctypes import CDLL, c_double, c_int
 from importlib import util
 import numpy as np
-from state import Population
 
 
-sharedlib_path = util.find_spec(".libtrachoma")
-lib = CDLL(sharedlib_path)
+sharedlib_path = util.find_spec("ntdmc_trachoma.libtrachoma")
+lib = CDLL(sharedlib_path.origin)
 advance = lib.apply_rules
 advance.restype = None
 
