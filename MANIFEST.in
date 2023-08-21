@@ -1,0 +1,2 @@
+include src/libtrachoma/periods.h
+include src/libtrachoma/shift.h
