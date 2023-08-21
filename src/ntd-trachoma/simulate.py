@@ -1,8 +1,11 @@
 from ctypes import CDLL, c_double, c_int
+from importlib import util
 import numpy as np
 from state import Population
 
-lib = CDLL('./libtrachoma.so')
+
+sharedlib_path = util.find_spec(".libtrachoma")
+lib = CDLL(sharedlib_path)
 advance = lib.apply_rules
 advance.restype = None
 
