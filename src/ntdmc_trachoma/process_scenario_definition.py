@@ -43,6 +43,6 @@ def process_scenario_definition(path: Path):
                 p["interventions"]
         ):
             all_events.extend(events)
-    # TODO What if first event is at the same time as
+    # TODO: What if first event is at the same time as
     # start_sim event?
     return sorted(all_events, key=lambda x: x[0])

@@ -2,7 +2,8 @@ import ctypes
 from ctypes import POINTER, c_int, c_double, c_ubyte
 import numpy as np
 
-from init import infected
+# FIXME: Implement initial infection in this module
+from .init import infected
 
 
 class Pop_c(ctypes.Structure):
@@ -32,6 +33,8 @@ class Population:
         self._inf = self._lat.copy()
         self._dis = np.packbits(np.zeros(self.size, dtype=np.bool_))
 
+        # !FIXME: Provide CDLL instance through wrapper module imported
+        # here and in simulate module
         lib = ctypes.CDLL("./libtrachoma.so")
         lib.setlatenttime.restype = ctypes.c_int
         lib.setlatenttime.argtypes = [ctypes.c_int] * 3

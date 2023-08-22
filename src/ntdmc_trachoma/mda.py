@@ -1,6 +1,8 @@
+# TODO: Rename 'mda' module as 'events'
 import numpy as np
 
 
+# TODO: Document MDA class
 class MDA:
     def __init__(self, coverage, efficacy, rho):
         self.a = (1. / rho) - 1
