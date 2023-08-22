@@ -2,13 +2,17 @@
     "population_size": 16,
     "max_age": 3120,
     "mean_age": 1040,
-    "v1": 1.0,
-    "v2": 2.6,
-    "phi": 1.4,
-    "epsilon": 0.5,
-    "av_I_duration": 2.0,
-    "av_ID_duration": 28.57,
-    "av_D_duration": 42.86,
+    "infection": {
+	"v1": 1.0,
+	"v2": 2.6,
+	"phi": 1.4,
+	"epsilon": 0.5
+    },
+    "durations": {
+	"I": 2.0,
+	"ID": 28.57,
+	"D": 42.86
+    },
     "inf_red": 0.45,
     "min_d": 1,
     "min_id": 11,

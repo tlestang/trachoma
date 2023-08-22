@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from collections import namedtuple
 import json
 
 
@@ -27,3 +28,7 @@ def get_params(path):
     with open(path, 'r') as f:
         d = json.load(f)
     return SimulationParameters(**d)
+
+AverageDurations = namedtuple(
+    typename="AverageDurations", field_names=["I", "ID", "D"],
+)
