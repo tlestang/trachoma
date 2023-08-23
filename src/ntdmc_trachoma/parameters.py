@@ -32,3 +32,8 @@ def get_params(path):
 AverageDurations = namedtuple(
     typename="AverageDurations", field_names=["I", "ID", "D"],
 )
+
+InfectionParameters = namedtuple(
+    typename="InfectionParameters", field_names=["v1", "v2", "phi", "epsilon"]
+)
+
