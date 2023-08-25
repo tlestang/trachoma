@@ -18,9 +18,12 @@ class Simulation:
         self.rng = np.random.default_rng()
         self.groups = groups
         self.lib = ctypes.CDLL(LIBTRACHO_PATH)
+        self.load_parameters(parameters_filepath)
 
-        with open(parameters_filepath, 'r') as f:
+    def load_parameters(self, parameters_filepath: Path):
+        with parameters_filepath.open('r') as f:
             p = json.load(f)
+        self.popsize = p["population"]["size"]
         self.set_base_periods(AverageDurations(**p["durations"]))
         self.set_infection_parameters(
             InfectionParameters(**p["infection"])
@@ -42,6 +45,7 @@ class Simulation:
         self.lib.set_base_periods.argtypes = [
             np.ctypeslib.ndpointer(dtype=np.int32, ndim=1)
         ] * 3
+        # FIXME: What if arrays in base_periods are garbage collected?
         self.lib.set_base_periods(*base_periods)
         return None
 
@@ -55,7 +59,7 @@ class Simulation:
             ctypes.c_double(p.epsilon),
     )
 
-    def set_background_mortality(self, tau: float):
+    def set_bgd_mortality(self, tau: float):
         self.lib.set_background_mortality.restype = None
         self.lib.set_background_mortality.argtypes = [ctypes.c_double]
         self.lib.set_background_mortality(
