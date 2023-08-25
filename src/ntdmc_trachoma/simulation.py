@@ -1,3 +1,4 @@
+from copy import deepcopy
 import ctypes
 from importlib import util
 import json
@@ -7,6 +8,7 @@ import numpy as np
 
 from .parameters import AverageDurations, InfectionParameters
 import ntdmc_trachoma.setup_core as setup_core
+import ntdmc_trachoma.process_scenario_definition as scenario
 import ntdmc_trachoma.init as init
 from .state import Population
 
@@ -49,3 +51,15 @@ class Simulation:
         setup_core.set_groups(self.lib, p["population"]["groups"])
 
     #TODO: Add getter for base periods, read arrays from C lib
+
+    def simulate(self, scenario_filepath: Path, betavals: list[float]):
+        events = scenario.process(scenario_filepath)
+        for betaval in betavals:
+            pop = deepcopy(self.pop)
+            for e, e_next in zip(events[:-1], events[1:]):
+                self.lib.advance(
+                    pop,
+                    e_next[0] - e[0],
+                    ctypes.c_double(betaval)
+                )
+                e_next[1](pop)

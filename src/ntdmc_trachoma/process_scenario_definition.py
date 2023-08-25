@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import sys
 
-import mda
+import ntdmc_trachoma.mda as mda
 
 
 def process_intervention(inter: dict, gen_dates):
