@@ -1,6 +1,7 @@
 import ctypes
 from importlib import util
 import json
+from pathlib import Path
 
 import numpy as np
 
@@ -14,9 +15,8 @@ LIBTRACHO_PATH = util.find_spec(
 
 class Simulation:
 
-    def __init__(self, popsize, groups, ages, parameters_filepath):
+    def __init__(self, parameters_filepath: Path):
         self.rng = np.random.default_rng()
-        self.groups = groups
         self.lib = ctypes.CDLL(LIBTRACHO_PATH)
         self.load_parameters(parameters_filepath)
 
