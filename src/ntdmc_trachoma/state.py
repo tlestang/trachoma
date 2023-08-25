@@ -20,7 +20,7 @@ class Pop_c(ctypes.Structure):
 
 
 class Population:
-    def __init__(self, ages, latent_base, rng):
+    def __init__(self, ages, latent_base, rng, lib):
 
         self.size = len(ages)
         self.ages = np.sort(ages).astype(np.int32)
@@ -33,9 +33,8 @@ class Population:
         self._inf = self._lat.copy()
         self._dis = np.packbits(np.zeros(self.size, dtype=np.bool_))
 
-        # !FIXME: Provide CDLL instance through wrapper module imported
-        # here and in simulate module
-        lib = ctypes.CDLL("./libtrachoma.so")
+        # FIXME: Population init shouldn't have to go down to C
+        # just to init the latent time of initially infected people
         lib.setlatenttime.restype = ctypes.c_int
         lib.setlatenttime.argtypes = [ctypes.c_int] * 3
         self.clock[latent] = [

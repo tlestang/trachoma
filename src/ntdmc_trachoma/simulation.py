@@ -7,6 +7,8 @@ import numpy as np
 
 from .parameters import AverageDurations, InfectionParameters
 import ntdmc_trachoma.setup_core as setup_core
+import ntdmc_trachoma.init as init
+from .state import Population
 
 
 LIBTRACHO_PATH = util.find_spec(
@@ -20,6 +22,14 @@ class Simulation:
         self.rng = np.random.default_rng()
         self.lib = ctypes.CDLL(LIBTRACHO_PATH)
         self.load_parameters(parameters_filepath)
+        # FIXME!: base latent period is hardcoded below. Include base...
+        # periods in Population structure/class?
+        self.pop = Population(
+            ages=init.ages(self.popsize, 60 * 52, 20 * 52, self.rng),
+            latent_base=np.array([2] * self.popsize, dtype=np.int32),
+            rng=self.rng,
+            lib=self.lib,
+        )
 
     def load_parameters(self, parameters_filepath: Path):
         with parameters_filepath.open('r') as f:
