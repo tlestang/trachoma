@@ -21,6 +21,5 @@
     "min_id": 11,
     "ag": 0.00179,
     "aq": 0.0368,
-    "tau": 2080,
-
+    "bgd_mortality_rate": 2080
 }
