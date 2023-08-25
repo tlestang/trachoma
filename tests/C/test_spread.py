@@ -1,12 +1,15 @@
 import ctypes
+from importlib import util
 from ctypes import c_int, c_ubyte
 import numpy as np
 import numpy.testing as nptest
 
-from state import Population
+from ntdmc_trachoma.state import Population
 
-
-lib = ctypes.CDLL("./libtrachoma.so")
+LIBTRACHO_PATH = util.find_spec(
+    "ntdmc_trachoma.libtrachoma"
+).origin
+lib = ctypes.CDLL(LIBTRACHO_PATH)
 
 # We'll be using the set<period>time functions provided by the C
 # library (periods.c). So we need to initialise the base period
@@ -62,7 +65,7 @@ def set_expected_clock(
 
 def test_spread():
     ages = np.array(range(16), dtype=np.int32)
-    pop = Population(ages, latent_base_period, RNG)
+    pop = Population(ages, latent_base_period, RNG, lib)
 
     latent = {0, 4, 9, 14}
     infected = {0, 2, 4, 9, 10, 14}

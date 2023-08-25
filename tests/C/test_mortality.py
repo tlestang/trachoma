@@ -1,18 +1,22 @@
 import ctypes
+from importlib import util
 import numpy as np
 import numpy.testing as nptest
 
-from state import Population
+from ntdmc_trachoma.state import Population
 
 
-lib = ctypes.CDLL("./libtrachoma.so")
+LIBTRACHO_PATH = util.find_spec(
+    "ntdmc_trachoma.libtrachoma"
+).origin
+lib = ctypes.CDLL(LIBTRACHO_PATH)
 
 
 def test_remove_individual():
     ages = np.array(range(16))
     latent_base = np.array([2] * 16)
     rng = np.random.default_rng()
-    pop = Population(ages, latent_base, rng)
+    pop = Population(ages, latent_base, rng, lib)
 
     pop.inf = np.array(
         [
@@ -82,7 +86,7 @@ def test_old_age_mortality():
     ages = np.array(range(24))
     latent_base = np.array([2] * 24)
     rng = np.random.default_rng()
-    pop = Population(ages, latent_base, rng)
+    pop = Population(ages, latent_base, rng, lib)
 
     pop.inf = np.array(
         [

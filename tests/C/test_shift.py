@@ -1,9 +1,14 @@
 import ctypes
+from importlib import util
 from ctypes import c_int
 import numpy as np
 import numpy.testing as nptest
 
-lib = ctypes.CDLL("./libtrachoma.so")
+
+LIBTRACHO_PATH = util.find_spec(
+    "ntdmc_trachoma.libtrachoma"
+).origin
+lib = ctypes.CDLL(LIBTRACHO_PATH)
 
 
 def test_shift():
