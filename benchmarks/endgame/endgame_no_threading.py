@@ -1,16 +1,17 @@
-import sys
-sys.path.append("../../")
+import ctypes
 from copy import deepcopy
+import json
 from pathlib import Path
-from threading import Thread
+from importlib import util
 
 import numpy as np
 
-import init
-from state import Population
-import simulate
-from process_scenario_definition import process_scenario_definition
-from parameters import get_params
+import ntdmc_trachoma.init as init
+from ntdmc_trachoma.state import Population
+import ntdmc_trachoma.simulate as simulate
+from ntdmc_trachoma.parameters import AverageDurations, InfectionParameters
+from ntdmc_trachoma.process_scenario_definition import process_scenario_definition
+import ntdmc_trachoma.setup_core as setup_core
 
 SCENARIO_PATH = Path("scenario.json")
 BETA_PATH = Path("k_values.txt")
@@ -19,20 +20,34 @@ PARAMETERS_PATH = Path("parameters.json")
 
 def main():
     events = process_scenario_definition(SCENARIO_PATH)
-
-    p = get_params(PARAMETERS_PATH)
+    with PARAMETERS_PATH.open('r') as f:
+        p = json.load(f)
 
     rng = np.random.default_rng()
 
+    pop_params = p["population"]
     ages = init.ages(
-        p.population_size, p.max_age, p.mean_age, rng
-
+        pop_params["size"], pop_params["max_age"],
+        pop_params["mean_age"], rng
     )
-    base_periods = simulate.set_base_periods(p, rng)
-    simulate.set_infection_parameters(p)
-    simulate.set_background_mortality(p)
-    simulate.set_groups(p)
-    p = Population(ages, latent_base=base_periods[0], rng=rng)
+
+    LIBTRACHO_PATH = util.find_spec(
+        "ntdmc_trachoma.libtrachoma"
+    ).origin
+    lib = ctypes.CDLL(LIBTRACHO_PATH)
+    base_periods = setup_core.set_base_periods(
+        lib,
+        AverageDurations(**p["durations"]),
+        p["population"]["size"], rng
+    )
+    setup_core.set_infection_parameters(
+            lib,
+            InfectionParameters(**p["infection"])
+        )
+    setup_core.set_bgd_mortality(lib, p["bgd_mortality_rate"])
+    setup_core.set_groups(lib, p["population"]["groups"])
+
+    p = Population(ages, latent_base=base_periods[0], rng=rng, lib=lib)
 
     with BETA_PATH.open() as f:
         kvalues = [
