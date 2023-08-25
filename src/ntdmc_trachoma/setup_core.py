@@ -20,7 +20,7 @@ def set_base_periods(lib, avg_durations: AverageDurations, popsize, rng):
     ] * 3
     # FIXME: What if arrays in base_periods are garbage collected?
     lib.set_base_periods(*base_periods)
-    return None
+    return base_periods
 
 
 def set_infection_parameters(lib, p: InfectionParameters):
