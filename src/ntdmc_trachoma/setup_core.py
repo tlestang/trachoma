@@ -1,5 +1,5 @@
 import ctypes
-from numpy import int32, exp
+import numpy as np
 from numpy.ctypeslib import ndpointer
 
 from .parameters import InfectionParameters, BasePeriods
@@ -7,7 +7,7 @@ from .parameters import InfectionParameters, BasePeriods
 
 def set_base_periods(lib, base_periods: BasePeriods):
     lib.set_base_periods.argtypes = [
-        ndpointer(dtype=int32, ndim=1)
+        ndpointer(dtype=np.int32, ndim=1)
     ] * 3
     lib.set_base_periods(*base_periods)
     return base_periods
@@ -28,12 +28,15 @@ def set_bgd_mortality(lib, tau: float):
     lib.set_background_mortality.restype = None
     lib.set_background_mortality.argtypes = [ctypes.c_double]
     lib.set_background_mortality(
-        ctypes.c_double(1. - exp(- 1. / tau))
+        ctypes.c_double(1. - np.exp(- 1. / tau))
     )
 
 
-def set_groups(lib, groups: list[int]):
+def set_groups(lib, groups: list[int]) -> np.ndarray:
     lib.set_groups.restype = None
-    array_type = ctypes.c_int * len(groups)
-    lib.set_groups.argtypes = [array_type, ctypes.c_int]
-    lib.set_groups(array_type(*groups), len(groups))
+    lib.set_groups.argtypes = [
+        ndpointer(dtype=np.int32, ndim=1), ctypes.c_int
+    ]
+    groups_array = np.array(groups, dtype=np.int32)
+    lib.set_groups(groups_array, len(groups))
+    return groups_array

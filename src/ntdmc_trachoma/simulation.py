@@ -56,7 +56,10 @@ class Simulation:
         setup_core.set_bgd_mortality(
             self.lib, params["pop"].bgd_mortality_rate
         )
-        setup_core.set_groups(self.lib, params["pop"].groups)
+        # TODO: Register groups as instance attribute otherwise it's
+        # gcollected.  Should group array not allocated at the C level
+        # instead?
+        self.groups = setup_core.set_groups(self.lib, params["pop"].groups)
 
     def load_parameters(self, parameters_filepath: Path):
         with parameters_filepath.open('r') as f:
