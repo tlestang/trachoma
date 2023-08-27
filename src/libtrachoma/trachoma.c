@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,19 +24,36 @@ struct state {
   double *bactload;
 };
 
+struct output {
+  uint8_t *inf;
+  uint8_t *dis;
+  uint8_t *lat;
+  int *ages;
+  int *nrecords;
+};
+
 void get_infection_prob(int*, double*, int, double, double*);
 double get_load(int);
 void spread(struct state, uint8_t, int);
 void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
-void apply_rules(struct state st, int times, double beta) {
+void apply_rules(struct state st, struct output out, int times, double beta) {
   int i, j, t;
 
   int nblocks = st.n / 8;
   double *prob = (double *) malloc(st.n * sizeof(double));
 
   for (t = 0; t < times; ++t) {
+
+#ifdef RECORD
+    int write_offset = t * nblocks;
+    memcpy(out.lat+write_offset, st.lat, nblocks);
+    memcpy(out.inf+write_offset, st.inf, nblocks);
+    memcpy(out.dis+write_offset, st.dis, nblocks);
+    memcpy(out.ages+(t * st.n), st.ages, st.n * sizeof(int));
+    *(out.nrecords) += 1;
+#endif
 
     get_infection_prob(st.ages, st.bactload, st.n, beta, prob);
 
@@ -146,7 +164,7 @@ void get_infection_prob(int *ages, double* bactload, int n,
   k = 0;
   one_over_popsize = 1. / n;
   epsm = 1. - epsilon;
-  
+
   for (k = 0, igroup = 0; igroup < ngroups; ++igroup) {
     n_prev = k;
     for(sum_ld = 0; (ages[k] < groups[igroup]) &&  k < n; ++k)

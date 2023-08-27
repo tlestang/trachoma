@@ -14,7 +14,8 @@ from .parameters import (
 import ntdmc_trachoma.setup_core as setup_core
 import ntdmc_trachoma.process_scenario_definition as scenario
 import ntdmc_trachoma.init as init
-from .state import Population
+from ntdmc_trachoma.state import Population
+from ntdmc_trachoma.output import Output
 
 
 LIBTRACHO_PATH = util.find_spec(
@@ -72,13 +73,29 @@ class Simulation:
 
     #TODO: Add getter for base periods, read arrays from C lib
 
-    def simulate(self, scenario_filepath: Path, betavals: list[float]):
+    def simulate(self,
+                 scenario_filepath: Path,
+                 betavals: list[float],
+                 record=False):
         events = scenario.process_scenario_definition(scenario_filepath)
+        nsteps = sum(
+            [
+                e_next[0] - e[0]
+                for e, e_next in zip(events[:-1], events[1:])
+            ]
+        )
+        self.output = (
+            Output(
+                popsize=len(self.pop.ages),
+                max_records=nsteps * len(betavals),
+            )
+        ) if record else None
         for betaval in betavals:
             pop = deepcopy(self.pop)
             for e, e_next in zip(events[:-1], events[1:]):
                 self.lib.apply_rules(
                     pop,
+                    self.output,
                     e_next[0] - e[0],
                     ctypes.c_double(betaval)
                 )
