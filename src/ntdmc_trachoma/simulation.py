@@ -70,11 +70,11 @@ class Simulation:
     #TODO: Add getter for base periods, read arrays from C lib
 
     def simulate(self, scenario_filepath: Path, betavals: list[float]):
-        events = scenario.process(scenario_filepath)
+        events = scenario.process_scenario_definition(scenario_filepath)
         for betaval in betavals:
             pop = deepcopy(self.pop)
             for e, e_next in zip(events[:-1], events[1:]):
-                self.lib.advance(
+                self.lib.apply_rules(
                     pop,
                     e_next[0] - e[0],
                     ctypes.c_double(betaval)
