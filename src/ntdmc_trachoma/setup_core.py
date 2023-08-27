@@ -1,24 +1,14 @@
 import ctypes
+from numpy import int32, exp
 from numpy.ctypeslib import ndpointer
-from numpy import int32, array, exp
 
-from .parameters import AverageDurations, InfectionParameters
+from .parameters import InfectionParameters, BasePeriods
 
 
-def set_base_periods(lib, avg_durations: AverageDurations, popsize, rng):
-    base_periods = (
-        array([avg_durations.I] * popsize, dtype=int32),
-        rng.poisson(
-            lam=avg_durations.ID, size=popsize,
-        ).astype(int32),
-        rng.poisson(
-            lam=avg_durations.D, size=popsize
-        ).astype(int32),
-    )
+def set_base_periods(lib, base_periods: BasePeriods):
     lib.set_base_periods.argtypes = [
         ndpointer(dtype=int32, ndim=1)
     ] * 3
-    # FIXME: What if arrays in base_periods are garbage collected?
     lib.set_base_periods(*base_periods)
     return base_periods
 

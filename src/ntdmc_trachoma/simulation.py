@@ -1,3 +1,4 @@
+from collections import namedtuple
 from copy import deepcopy
 import ctypes
 from importlib import util
@@ -6,7 +7,10 @@ from pathlib import Path
 
 import numpy as np
 
-from .parameters import AverageDurations, InfectionParameters
+from .parameters import (
+    AverageDurations, InfectionParameters,
+    PopulationParameters, BasePeriods
+)
 import ntdmc_trachoma.setup_core as setup_core
 import ntdmc_trachoma.process_scenario_definition as scenario
 import ntdmc_trachoma.init as init
@@ -19,36 +23,49 @@ LIBTRACHO_PATH = util.find_spec(
 
 
 class Simulation:
-
     def __init__(self, parameters_filepath: Path):
         self.rng = np.random.default_rng()
         self.lib = ctypes.CDLL(LIBTRACHO_PATH)
-        self.load_parameters(parameters_filepath)
-        # FIXME!: base latent period is hardcoded below. Include base...
-        # periods in Population structure/class?
+        params = self.load_parameters(parameters_filepath)
+        self.base_periods = BasePeriods(
+            latent=np.array(
+                [params["durations"].I] * params["pop"].size, dtype=np.int32
+            ),
+            ID=self.rng.poisson(
+                lam=params["durations"].ID, size=params["pop"].size,
+            ).astype(np.int32),
+            D=self.rng.poisson(
+                lam=params["durations"].D, size=params["pop"].size
+            ).astype(np.int32),
+        )
+        ages = init.ages(
+            params["pop"].size,
+            params["pop"].max_age,
+            params["pop"].average_age,
+            self.rng,
+        )
         self.pop = Population(
-            ages=init.ages(self.popsize, 60 * 52, 20 * 52, self.rng),
-            latent_base=np.array([2] * self.popsize, dtype=np.int32),
+            ages=ages,
+            latent_base=self.base_periods.latent,
             rng=self.rng,
             lib=self.lib,
         )
 
+        setup_core.set_base_periods(self.lib, self.base_periods)
+        setup_core.set_infection_parameters(self.lib, params["inf"])
+        setup_core.set_bgd_mortality(
+            self.lib, params["pop"].bgd_mortality_rate
+        )
+        setup_core.set_groups(self.lib, params["pop"].groups)
+
     def load_parameters(self, parameters_filepath: Path):
         with parameters_filepath.open('r') as f:
             p = json.load(f)
-        self.popsize = p["population"]["size"]
-
-        setup_core.set_base_periods(
-            self.lib,
-            AverageDurations(**p["durations"]),
-            self.popsize, self.rng
-        )
-        setup_core.set_infection_parameters(
-            self.lib,
-            InfectionParameters(**p["infection"])
-        )
-        setup_core.set_bgd_mortality(self.lib, p["bgd_mortality_rate"])
-        setup_core.set_groups(self.lib, p["population"]["groups"])
+        return {
+            "pop": PopulationParameters(**p["population"]),
+            "inf": InfectionParameters(**p["infection"]),
+            "durations": AverageDurations(**p["durations"]),
+        }
 
     #TODO: Add getter for base periods, read arrays from C lib
 

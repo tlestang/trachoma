@@ -29,11 +29,17 @@ def get_params(path):
         d = json.load(f)
     return SimulationParameters(**d)
 
+
 AverageDurations = namedtuple(
     typename="AverageDurations", field_names=["I", "ID", "D"],
 )
-
 InfectionParameters = namedtuple(
     typename="InfectionParameters", field_names=["v1", "v2", "phi", "epsilon"]
 )
-
+PopulationParameters = namedtuple(
+    typename="PopulationParameters",
+    field_names=[
+        "size", "max_age", "average_age", "groups", "bgd_mortality_rate"
+    ]
+)
+BasePeriods = namedtuple("BasePeriods", ["latent", "ID", "D"])
