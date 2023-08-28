@@ -15,7 +15,7 @@ def main():
         betavals = [
             float(line) for line in f
         ]
-    sim.simulate(SCENARIO_PATH, betavals)
+    sim.simulate(SCENARIO_PATH, betavals, record=False)
 
 
 if __name__ == "__main__":
