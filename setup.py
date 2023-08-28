@@ -9,6 +9,7 @@ setup(
                 "src/libtrachoma/shift.c",
                 "src/libtrachoma/trachoma.c"
             ],
+            extra_compile_args=["-O3"],
         ),
     ]
 )
