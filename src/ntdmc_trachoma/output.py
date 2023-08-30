@@ -30,23 +30,28 @@ class Output:
         offset = (self.popsize // 8) * self.nrecords.value
         offset_ages = self.popsize * self.nrecords.value
         # pdb.set_trace()
-        return Out_c(
-            self._inf[offset:].ctypes.data_as(POINTER(c_ubyte)),
-            self._dis[offset:].ctypes.data_as(POINTER(c_ubyte)),
-            self._lat[offset:].ctypes.data_as(POINTER(c_ubyte)),
-            self.ages[offset_ages:].ctypes.data_as(POINTER(c_int)),
-            self.nrecordsp,
+        return ctypes.byref(
+            Out_c(
+                self._inf[offset:].ctypes.data_as(POINTER(c_ubyte)),
+                self._dis[offset:].ctypes.data_as(POINTER(c_ubyte)),
+                self._lat[offset:].ctypes.data_as(POINTER(c_ubyte)),
+                self.ages[offset_ages:].ctypes.data_as(POINTER(c_int)),
+                self.nrecordsp,
+            )
         )
 
     def write(self):
-        nrecords = len(self.ages) // self.popsize
-        for r in range(nrecords):
-            start = r * (self.popsize // 8)
-            end = (r + 1) * (self.popsize // 8)
-            lat = np.unpackbits(self._lat[start:end])
-            inf = np.unpackbits(self._inf[start:end])
-            dis = np.unpackbits(self._dis[start:end])
-            ages = self.ages[r * self.popsize:(r + 1) * self.popsize]
-
-            with open("out.txt", "a") as f:
-                np.savetxt(f, np.stack((lat, inf, dis, ages)), fmt="%d")
+        with open("infection_state.bin", "wb") as f:
+            f.write(
+                self._inf.tobytes()
+            )
+        with open("diseased_state.bin", "wb") as f:
+            f.write(
+                self._dis.tobytes()
+            )
+        with open("latent_state.bin", "wb") as f:
+            f.write(
+                self._lat.tobytes()
+            )
+        with open("ages.bin", "wb") as f:
+            f.write(self.ages.astype(np.uint8).tobytes())

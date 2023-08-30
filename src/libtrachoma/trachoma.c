@@ -38,7 +38,7 @@ void spread(struct state, uint8_t, int);
 void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
-void apply_rules(struct state st, struct output out, int times, double beta) {
+void apply_rules(struct state st, struct output *out, int times, double beta) {
   int i, j, t;
 
   int nblocks = st.n / 8;
@@ -46,14 +46,14 @@ void apply_rules(struct state st, struct output out, int times, double beta) {
 
   for (t = 0; t < times; ++t) {
 
-#ifdef RECORD
-    int write_offset = t * nblocks;
-    memcpy(out.lat+write_offset, st.lat, nblocks);
-    memcpy(out.inf+write_offset, st.inf, nblocks);
-    memcpy(out.dis+write_offset, st.dis, nblocks);
-    memcpy(out.ages+(t * st.n), st.ages, st.n * sizeof(int));
-    *(out.nrecords) += 1;
-#endif
+    if (out != NULL) {
+      int write_offset = t * nblocks;
+      memcpy(out->lat+write_offset, st.lat, nblocks);
+      memcpy(out->inf+write_offset, st.inf, nblocks);
+      memcpy(out->dis+write_offset, st.dis, nblocks);
+      memcpy(out->ages+(t * st.n), st.ages, st.n * sizeof(int));
+      *(out->nrecords) += 1;
+    }
 
     get_infection_prob(st.ages, st.bactload, st.n, beta, prob);
 
