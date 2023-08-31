@@ -38,7 +38,7 @@ void spread(struct state, uint8_t, int);
 void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
-void apply_rules(struct state st, struct output *out, int times, double beta) {
+void step(struct state st, struct output *out, int times, double beta) {
   int i, j, t;
 
   int nblocks = st.n / 8;

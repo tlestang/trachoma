@@ -137,7 +137,7 @@ class Simulation:
         for betaval in betavals:
             pop = deepcopy(self.pop)
             for e, e_next in zip(events[:-1], events[1:]):
-                self.lib.apply_rules(
+                self.lib.step(
                     pop,
                     self.output,
                     e_next[0] - e[0],
