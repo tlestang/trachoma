@@ -13,22 +13,51 @@ int *groups, ngroups;
 
 double BGD_DEATH_RATE;
 
+/**
+ *  Represent the state of a population of individuals.
+ */
 struct state {
+  /** Population size */
   int n;
-  uint8_t *inf;
-  uint8_t *dis;
+  /** latent state array */
   uint8_t *lat;
+  /** Infected state array */
+  uint8_t *inf;
+  /** Diseased state array */
+  uint8_t *dis;
+  /** Clock array named 'clockm' to avoid clash with built-in clock()
+   function */
   int *clockm;
+  /** ages array */
   int *ages;
+  /** Infection count array */
   int *count;
+  /** Bacterial load array */
   double *bactload;
 };
 
+/**
+ *  Hold pointers to records of various population properties.
+ *
+ *  This structure holds information about the number of records made
+ *  so far.  New records are appended to previous one. For instance,
+ *  after K records have been made, the ``ages`` array will be filled
+ *  with K * N integers, where N is the population size.
+ *
+ *  .. seealso::
+ *
+ *     :py:class:`ntdmc_trachoma.output.Output`.
+ */
 struct output {
+  /** Infected states */
   uint8_t *inf;
+  /** Diseased states */
   uint8_t *dis;
+  /** Latent states */
   uint8_t *lat;
+  /** Individuals' age */
   int *ages;
+  /** Current number of records */
   int *nrecords;
 };
 
@@ -39,13 +68,13 @@ void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
 /**
- *  Step the trachoma model over ``n`` iterations.
+ *  Step the trachoma model over multiple iterations.
  *
  *  The ``step`` function is the main entry point in the
  *  ``libtrachoma`` library.  One iteration consits of the following
  *  stages:
  *
- *  - Computing the infection probability for each individual
+ *  - Compute infection probability for each individual
  *  - Select individuals for infection
  *  - Apply transition rules
  *  - Apply background mortality
@@ -53,16 +82,16 @@ void old_age_mortality(struct state, int);
  *
  *  :param st: The population to evolve in time
  *  :param: out: The output container
- *  :param n: The number of iterations to perform
+ *  :param niter: The number of iterations to perform
  *  :param beta: The value of the beta parameter to simulate for
  */
-void step(struct state st, struct output *out, int times, double beta) {
+void step(struct state st, struct output *out, int niter, double beta) {
   int i, j, t;
 
   int nblocks = st.n / 8;
   double *prob = (double *) malloc(st.n * sizeof(double));
 
-  for (t = 0; t < times; ++t) {
+  for (t = 0; t < niter; ++t) {
 
     if (out != NULL) {
       int write_offset = t * nblocks;
@@ -212,102 +241,103 @@ double get_load(int ninf) {
   return b1 * exp((ninf - 1) * ep2);
 }
 
-/* int main() { */
-/*   int n = 16; */
-/*   int nblocks = n / 8; */
-/*   prob = (double *) malloc(sizeof(double) * n); */
-
-/*   uint8_t *inf = (uint8_t *) malloc(sizeof(uint8_t) * nblocks); */
-/*   uint8_t *dis = (uint8_t *) malloc(sizeof(uint8_t) * nblocks); */
-/*   uint8_t *lat = (uint8_t *) malloc(sizeof(uint8_t) * nblocks); */
-/*   int *clockm = (int *) malloc(sizeof(int) * n); */
-/*   int *ages = (int *) malloc(sizeof(int) * n); */
-/*   int *count = (int *) malloc(sizeof(int) * n); */
-/*   double *bactload = (double *) malloc(sizeof(double) * n); */
-
-/*   ID_base = (int *) malloc(sizeof(int) * n); */
-/*   D_base = (int *) malloc(sizeof(int) * n); */
-/*   latent_base = (int *) malloc(sizeof(int) * n); */
-
-/*   int ages_l[] = {203,  388,  586,  846, 1323, */
-/* 		  1327, 1400, 1446, 1824, 1917, */
-/* 		  2032, 2222, 2650, 3120, 3117, */
-/* 		  3119}; */
-/*   double bactload_l[] = { */
-/*     0.54589385, 0.64449697, 0.94586293, 0.89743933, 0.74142636, */
-/*     0.42041218, 0.30355981, 0.76096054, 0.62761568, 0.88280128, */
-/*     0.16847746, 0.41943052, 0.56054159, 0.09329043, 0.67442931, */
-/*     0.16027857 */
-/*   }; */
-
-/*   inf[0] =139; inf[1] = 239; */
-/*   dis[0] = 62; dis[1] = 26; */
-/*   lat[0] = 129; lat[1] = 229; */
-/*   int i; */
-/*   for (i = 0; i < n; ++i) { */
-/*     count[i] = 0; */
-/*     clockm[i] = 2; */
-/*     ages[i] = ages_l[i]; */
-/*     bactload[i] = bactload_l[i]; */
-/*     ID_base[i] = 2; */
-/*     latent_base[i] = 2; */
-/*     D_base[i] = 2; */
-/*   } */
-/*   clockm[0] = 0; clockm[1] = -1; */
-/*   clockm[5] = 0; clockm[10] = 0; */
-/*   clockm[12] = 0; */
-
-/*   // for (i = 0; i < 8; ++i) */
-/*     // printf("%c", clock[i] == 0 ? 'X' : 'O'); */
-/*   // printf(" "); */
-/*   // for (i = 0; i < 8; ++i) */
-/*     // printf("%c", clock[8 + i] == 0 ? 'X' : 'O'); */
-/*   // printf("\n"); */
-/*   /\* printbytearray(dis, nblocks); *\/ */
-/*   /\* printbytearray(inf, nblocks); *\/ */
-/*   /\* printbytearray(lat, nblocks); *\/ */
-
-/*   apply_rules(n, nblocks, 1); */
-/*   // printf("\n"); */
-
-/*   // printf("%c", '\n'); */
-
-/*   /\* printbytearray(dis, nblocks); *\/ */
-/*   /\* printbytearray(inf, nblocks); *\/ */
-/*   /\* printbytearray(lat, nblocks); *\/ */
-/* } */
-
-/* void set_arrays(uint8_t *inf_m, uint8_t *dis_m, uint8_t *lat_m, */
-/* 	 int *clock_m, int *ages_m, int *count_m, */
-/* 	 double *bactload_m, double *prob_m) { */
-/*   ages = ages_m; */
-/*   inf = inf_m; */
-/*   dis = dis_m; */
-/*   lat = lat_m; */
-/*   clockm = clock_m; */
-/*   count = count_m; */
-/*   bactload = bactload_m; */
-/*   prob = prob_m; */
-/* } */
-
+/**
+ *  Set global pointers to memory describing the base infection periods.
+ *
+ *  Each individual in the population is assigned a base value for the
+ *  time spent in each of the infection stages.  This value will
+ *  typically be used for setting the period of time the individual
+ *  will stay in that stage following the first infection.  Period
+ *  values for subsequent infection will be function of the base
+ *  values.
+ *
+ *  Note that, as oppsesed to infected state arrays, base periods
+ *  arrays are not members of the State structure.  Instead they are
+ *  set globally.
+ *
+ *  This function is meant to be used by Python code to set pointers
+ *  to data handle by NumPy arrays:
+ *
+ *  .. code-block:: python
+ *
+ *      from numpy.ctypeslib import ndpointer
+ *
+ *      clib = ctypes.CDLL("/path/to/trachoma/c/lib.so")
+ *      clib.set_base_periods.argtypes = [
+ *              ndpointer(dtype=np.int32, ndim=1),
+ *              ndpointer(dtype=np.int32, ndim=1),
+ *              ndpointer(dtype=np.int32, ndim=1),
+ *          ]
+ *      clib.set_base_periods.restype = None
+ *      latent_base = numpy.array([2] * 8)  # let NumPy handle memory
+ *      ID_base = numpy.array([2] * 8)
+ *      D_base = numpy.array([2] * 8)
+ *      clib.set_base_periods(latent_base, ID_base, D_base)
+ *
+ *  :param latent_base_m: A pointer to a memory location containing
+ *    the base value for the latent period of each individual in the
+ *    population
+ *  :param ID_base_m: A pointer to a memory location containing
+ *    the base value for the *ID* period of each individual in the
+ *    population
+ *  :param D_base_m: A pointer to a memory location containing
+ *    the base value for the *D* period of each individual in the
+ *    population
+ */
 void set_base_periods(int *latent_base_m, int *ID_base_m, int *D_base_m) {
   D_base = D_base_m;
   ID_base = ID_base_m;
   latent_base = latent_base_m;
 }
 
+/**
+ *  Set global variales to values related to infection probability.
+ *
+ *  :param v1_m: Value for the :math:`v_1` infection parameter.
+ *  :param v1_m: Value for the :math:`v_2` infection parameter.
+ *  :param v1_m: Value for the :math:`\phi` infection parameter.
+ *  :param v1_m: Value for the :math:`\epsilon` infection parameter.
+ */
 void set_infection_parameters(double v1_m, double v2_m,
 			      double phi_m, double eps_m) {
+  // TODO: Call parameters by their actual name in docstring
   V_1 = v1_m;
   V_2 = v2_m;
   phi = phi_m;
   epsilon = eps_m;
 }
 
-void set_background_mortality(double rate) {
+/**
+ *  Set value of background mortality probability.
+ *
+ *  The background mortality probability is expressed as
+ *
+ *  .. math::
+ *
+ *     r = 1 - e^{1 / \tau}
+ *
+ *  where :math:`\tau` is the background mortality rate.
+ *
+ *  :param prob: Mortality probability value
+ */
+void set_background_mortality(double prob) {
+  // TODO: Take rate as a parameter instead of probablity.
   BGD_DEATH_RATE = rate;
 }
 
+/**
+ *  Set global pointer to memory describing the age groups upper
+ *  boundaries.
+ *
+ *  .. note::
+ *
+ *     The minimum age is ``0``.
+ *
+ *  :param groups_m: pointer to an array describing the age grouops
+ *    upper boundaries.  The last element of these array should be the
+ *    maximum age any individual in the population can get to.
+ *  :param ngroups_m: the number of age groups.
+ */
 void set_groups(int groups_m[], int ngroups_m) {
   groups = groups_m;
   ngroups = ngroups_m;
