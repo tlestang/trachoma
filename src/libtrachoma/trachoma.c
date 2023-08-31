@@ -322,7 +322,7 @@ void set_infection_parameters(double v1_m, double v2_m,
  */
 void set_background_mortality(double prob) {
   // TODO: Take rate as a parameter instead of probablity.
-  BGD_DEATH_RATE = rate;
+  BGD_DEATH_RATE = prob;
 }
 
 /**
