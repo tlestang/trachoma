@@ -41,3 +41,8 @@ can work with. See :py:func:`Simulation.simulate
 
 .. autofunction:: ntdmc_trachoma.process_scenario_definition.process_scenario_definition
    
+Recording population state during a simulation
+----------------------------------------------
+
+.. autoclass:: ntdmc_trachoma.output.Output
+   :members:

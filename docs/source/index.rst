@@ -10,6 +10,7 @@ Welcome to NTDMC trachoma's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   tutorial
    scenarios
    parameters
    api/index

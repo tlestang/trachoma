@@ -47,11 +47,15 @@ class Population:
     :param lib: A handle to the C core library
     :type lib: ctypes.CDLL
 
+    .. seealso::
+
+       :c:struct:`struct state <state>`
+
     Examples:
     ~~~~~~~~~
 
     Instanciating a ``Population`` object:
-    
+
     >>> import numpy, ctypes
     >>> from ntdmc_trachoma.state import Population
     >>> ages = [832, 156, 2340, 1664, 3328]
@@ -62,7 +66,7 @@ class Population:
 
 
     Accessing ``Population`` properties:
-    
+
     >>> pop.ages
     array([156, 832, 1664, 2340, 3328])
     >>> pop.lat
