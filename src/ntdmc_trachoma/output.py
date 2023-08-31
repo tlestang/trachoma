@@ -105,7 +105,7 @@ class Output:
                 self._lat.tobytes()
             )
         with open("ages.bin", "wb") as f:
-            f.write(self.ages.astype(np.uint8).tobytes())
+            f.write(self.ages.astype(np.uint16).tobytes())
 
 
 class Out_c(ctypes.Structure):
