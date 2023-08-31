@@ -38,6 +38,24 @@ void spread(struct state, uint8_t, int);
 void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
 
+/**
+ *  Step the trachoma model over ``n`` iterations.
+ *
+ *  The ``step`` function is the main entry point in the
+ *  ``libtrachoma`` library.  One iteration consits of the following
+ *  stages:
+ *
+ *  - Computing the infection probability for each individual
+ *  - Select individuals for infection
+ *  - Apply transition rules
+ *  - Apply background mortality
+ *  - Apply old age mortality
+ *
+ *  :param st: The population to evolve in time
+ *  :param: out: The output container
+ *  :param n: The number of iterations to perform
+ *  :param beta: The value of the beta parameter to simulate for
+ */
 void step(struct state st, struct output *out, int times, double beta) {
   int i, j, t;
 

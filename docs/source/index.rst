@@ -13,3 +13,4 @@ Welcome to NTDMC trachoma's documentation!
    scenarios
    parameters
    api/index
+   libtrachoma

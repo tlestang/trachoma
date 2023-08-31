@@ -13,7 +13,16 @@ author = 'NTD Modelling Consortium'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.mathjax']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.mathjax',
+    'hawkmoth',
+
+]
+
+import os
+hawkmoth_root = os.path.abspath('../../src/libtrachoma')
+hawkmoth_clang = [('-I' + hawkmoth_root)]
 
 templates_path = ['_templates']
 exclude_patterns = []
