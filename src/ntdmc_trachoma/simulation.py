@@ -24,10 +24,37 @@ LIBTRACHO_PATH = util.find_spec(
 
 
 class Simulation:
+    """Encapsulate top-level facilities for managing a trachoma simulation.
+
+    The ``Simulation`` class provides is the primary entry point to
+    handling a trachoma simulation over a range of beta parameters
+    values.  It is responsible for reading parameters, loading and
+    initialising the underlying C library, as well as providing an
+    interface for writing simulation results on disk.
+
+    :param parameters_filepath: The location of a valid parameter
+        file. See :doc:`/parameters`.
+    :type parameters_filepath: pathlib.Path
+
+    Example
+    ~~~~~~~
+
+    >>> from pathlib import Path
+    >>> from ntdmc_trachoma import Simulation
+    >>> sim = Simulation(Path("parameters.json"))
+    >>> betavals = [0.2, 0.3, 0.4]
+    >>> sim.simulate(Path("scenario.json"), betavals, record=False)
+
+    """
     def __init__(self, parameters_filepath: Path):
         self.rng = np.random.default_rng()
         self.lib = ctypes.CDLL(LIBTRACHO_PATH)
         params = self.load_parameters(parameters_filepath)
+
+        # We set base periods as a instance attribute to make sure a
+        # reference the arrays is kept, because pointers in the C
+        # library will be set to point to them and we don't want the
+        # arrays to be garbage collected.
         self.base_periods = BasePeriods(
             latent=np.array(
                 [params["durations"].I] * params["pop"].size, dtype=np.int32
@@ -71,12 +98,29 @@ class Simulation:
             "durations": AverageDurations(**p["durations"]),
         }
 
-    #TODO: Add getter for base periods, read arrays from C lib
 
-    def simulate(self,
-                 scenario_filepath: Path,
-                 betavals: list[float],
-                 record=False):
+    #TODO: Add getter for base periods, read arrays from C lib
+    def simulate(self, scenario_filepath: Path, betavals: list[float], record=False):
+        """Simulate model over a given scenario, for a range of
+        spread parameter values.
+
+        This method does not modify the Simulation's instance ``pop``
+        attribute.  Instead, a copy is made before passing it down to
+        the function stepping the model, which does alter this copy.
+        On the contrary, the `output` attribute is modified, adding
+        new values generated at each iteration.  In other words, the
+        ``simulate`` method has no side effects other than recording
+        simulation ouput in the `Simulation.output` attribute.
+
+        :param scenario_filepath: location of a valid scenario
+            file. See :doc:`/scenarios`.
+        :type scenario_filepath: pathlib.Path
+        :param betavals: The list of beta parameter values to run the
+            simulation for.
+        :type betavals: list[float]
+        """
+        # TODO: Even with record=False we need to record the final
+        # state of the population
         events = scenario.process_scenario_definition(scenario_filepath)
         nsteps = sum(
             [
