@@ -82,3 +82,12 @@ source code and extract documentaion comments.
 ```
 $ python -m pip install sphinx hawkmoth libclang
 ```
+
+To build the documentation website:
+
+```
+make -C docs html
+```
+
+The built website is generated under `docs/build/html`.  Open
+`docs/build/html/index.html` with a web browser to view it.
