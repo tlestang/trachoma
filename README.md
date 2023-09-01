@@ -31,6 +31,25 @@ The package only depends on NumPy, but it is still recommended to use
 a virtual environment to isolate this verion on NumPy from others you
 might have installed on your machine.
 
+### Updating
+
+The package is currently changing on a daily basis. To update, your
+local copy of the repository, run
+
+```
+git pull origin main
+```
+
+from the repo root directory.
+
+In you installed the package in editable mode (see next section), then
+no more actions are required. If not, you'll need to reinstall the
+Python package into your environment:
+
+```
+$ python -m pip install .
+```
+
 ## Contributing
 
 Start by install the package in [editable
