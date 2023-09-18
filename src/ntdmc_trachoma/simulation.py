@@ -72,12 +72,7 @@ class Simulation:
             params["pop"].average_age,
             self.rng,
         )
-        self.pop = Population(
-            ages=ages,
-            latent_base=self.base_periods.latent,
-            rng=self.rng,
-            lib=self.lib,
-        )
+        self.pop = Population(ages)
 
         setup_core.set_base_periods(self.lib, self.base_periods)
         setup_core.set_infection_parameters(self.lib, params["inf"])

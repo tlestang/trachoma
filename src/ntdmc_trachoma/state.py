@@ -76,7 +76,7 @@ class Population:
     >>> pop.dis
     array([False, True, False, True, False])
     """
-    def __init__(self, ages, latent_base, rng, lib):
+    def __init__(self, ages):
 
         self.size = len(ages)
         self.ages = np.sort(ages).astype(np.int32)
@@ -84,29 +84,9 @@ class Population:
         self.count = np.zeros(self.size, dtype=np.int32)
         self.bact_load = np.zeros(self.size, dtype=np.float64)
 
-        #FIXME: I think a Population should be initialised by passing
-        #ages and infected status only. This would avoid having to
-        # pass the random generator reference.
-        latent = infected(self.size, 0.3, rng)
-        self._lat = np.packbits(latent)
+        self._lat = np.packbits(np.zeros(self.size, dtype=np.bool_))
         self._inf = self._lat.copy()
-        self._dis = np.packbits(np.zeros(self.size, dtype=np.bool_))
-
-        # FIXME: Population init shouldn't have to go down to C
-        # just to init the latent time of initially infected people
-        lib.setlatenttime.restype = ctypes.c_int
-        lib.setlatenttime.argtypes = [ctypes.c_int] * 3
-        self.clock[latent] = [
-            lib.setlatenttime(base, 0, age)
-            for age, base in zip(self.ages[latent], latent_base[latent])
-        ]
-        self.count[latent] = 1
-        ninfected = np.sum(self.count)
-        lib.get_load.restype = ctypes.c_double
-        lib.get_load.argtypes = [ctypes.c_int]
-        self.bact_load[latent] = [
-            lib.get_load(1) for _ in range(ninfected)
-        ]
+        self._dis = self._lat.copy()
 
     @property
     def _as_parameter_(self):
