@@ -31,10 +31,10 @@ Structures
 -----------
 
 .. c:autostruct:: state
-   :file: trachoma.c
+   :file: trachoma.h
    :members:
 
 .. c:autostruct:: output
-   :file: trachoma.c
+   :file: trachoma.h
    :members:
 
