@@ -73,6 +73,11 @@ class Simulation:
             self.rng,
         )
         self.pop = Population(ages)
+        self.pop.seed_infection(
+            k=params["pop"].n_initially_infected,
+            latent_period_func=get_latent_period,
+            bact_load_func=get_bact_load,
+        )
 
         setup_core.set_base_periods(self.lib, self.base_periods)
         setup_core.set_infection_parameters(self.lib, params["inf"])
@@ -83,6 +88,18 @@ class Simulation:
         # gcollected.  Should group array not allocated at the C level
         # instead?
         self.groups = setup_core.set_groups(self.lib, params["pop"].groups)
+
+    def get_latent_period_func(base_latent_period):
+        clib_func = self.lib.setlatenttime
+        clib_func.restype = ctypes.c_int
+        clib_func.argtypes = [ctypes.c_int]
+        return (lambda count: clib_func(count, base_latent_period))
+
+    def get_bact_load_func(infection_count):
+        clib_func = self.lib.bact_load
+        clib_func.restype = ctypes.c_double
+        clib_func.argtypes = [ctypes.c_int]
+        return (lambda x: clib_func(infection_count))
 
     def load_parameters(self, parameters_filepath: Path):
         with parameters_filepath.open('r') as f:
