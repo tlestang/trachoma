@@ -1,6 +1,7 @@
 import ctypes
 from ctypes import POINTER, c_int, c_double, c_ubyte
 import numpy as np
+import random
 
 # FIXME: Implement initial infection in this module
 from .init import infected
@@ -127,6 +128,39 @@ class Population:
     @lat.setter
     def lat(self, a):
         self._lat = np.packbits(a)
+
+    def seed_infection(self, k, latent_period_func, bact_load_func):
+        """Set a fraction of the population to the *latent* stage
+
+        This function takes two functions as arguments, used to set
+        the latent period value and bacterial load value for selected
+        individuals. They are called once per individual.  These two
+        function are functions of one integer, the current infection
+        count for the individual (zero for for a fresh ``Population``).
+
+        :param k: The number of individuals to set as infected (whose state to
+          set as latent).
+        :type k: int
+        :latent_period_func: A function of one integer argument returning the latent
+          period value for a given individual.
+        :bact_load_func: A function of one integer argument returning the
+          bacterial load for a given individual.
+
+        """
+        latent_ids = random.sample(range(self.size), k=k)
+        latent_mask = np.zeros(self.size, dtype=np.bool_)
+        latent_mask[latent_ids] = True
+
+        self.lat = self.lat | latent_mask
+        self.clock[latent_mask] = [
+            latent_period_func(count=0) for infected in latent_mask if infected
+        ]
+        self.bact_load[latent_mask] = [
+            bact_load_func(count=0) for infected in latent_mask if infected
+        ]
+        self.count[latent_mask] = 1
+
+        return latent_ids
 
 
 class Pop_c(ctypes.Structure):
