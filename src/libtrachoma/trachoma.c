@@ -62,7 +62,7 @@ struct output {
 };
 
 void get_infection_prob(int*, double*, int, double, double*);
-double get_load(int);
+double get_bact_load(int);
 void spread(struct state, uint8_t, int);
 void remove_indiv(struct state, int);
 void old_age_mortality(struct state, int);
@@ -185,8 +185,8 @@ void update_indivs(struct state st, uint8_t new_i, uint8_t new_d,
       st.clockm[k] = setidtime(ID_base[k], st.count[k], st.ages[k]);
       continue;
     } else if ((new_i << j) & 0x80) { // is new I
-      st.bactload[k] = get_load(st.count[k]);
       st.clockm[k] = setlatenttime(latent_base[k], st.count[k]);
+      st.bactload[k] = get_bact_load(st.count[k]);
       st.count[k]++;
     }
     else
@@ -235,7 +235,7 @@ void get_infection_prob(int *ages, double* bactload, int n,
   free(A);
 }
 
-double get_load(int ninf) {
+double get_bact_load(int ninf) {
   double b1 = 1., ep2 =  - 0.114;
 
   return b1 * exp((ninf - 1) * ep2);
