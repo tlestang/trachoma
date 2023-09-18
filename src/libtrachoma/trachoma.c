@@ -185,8 +185,8 @@ void update_indivs(struct state st, uint8_t new_i, uint8_t new_d,
       st.clockm[k] = setidtime(ID_base[k], st.count[k], st.ages[k]);
       continue;
     } else if ((new_i << j) & 0x80) { // is new I
-      st.clockm[k] = setlatenttime(latent_base[k], st.count[k], st.ages[k]);
       st.bactload[k] = get_load(st.count[k]);
+      st.clockm[k] = setlatenttime(latent_base[k], st.count[k]);
       st.count[k]++;
     }
     else
