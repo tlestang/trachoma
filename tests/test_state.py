@@ -1,25 +1,8 @@
 import numpy as np
 from ntdmc_trachoma.state import Population
 
-
-def init_ages(pop_size, max_age, mean_age, rng):
-    """Returns age array"""
-    ages = np.arange(max_age) + 1
-    age_prob = (
-        (1. - np.exp(-1. / mean_age)) *
-        np.exp(- ages / mean_age)
-    )
-    age_prob[-1] = 1 - age_prob[:-1].sum()
-
-    return rng.choice(
-        ages, p=age_prob,
-        size=pop_size,
-        replace=True
-    )
-
-
 AGES = np.array(
-    [13, 19, 11, 23,  1, 59, 27, 60,  7, 11, 13,  3, 10,  2, 21, 34]
+    [13, 19, 11, 23, 1, 59, 27, 60, 7, 11, 13, 3, 10, 2, 21, 34]
 )
 POPSIZE = len(AGES)
 
