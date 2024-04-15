@@ -14,9 +14,7 @@ lib = ctypes.CDLL(LIBTRACHO_PATH)
 
 def test_remove_individual():
     ages = np.array(range(16))
-    latent_base = np.array([2] * 16)
-    rng = np.random.default_rng()
-    pop = Population(ages, latent_base, rng, lib)
+    pop = Population(ages)
 
     pop.inf = np.array(
         [
@@ -84,9 +82,7 @@ def test_remove_individual():
 
 def test_old_age_mortality():
     ages = np.array(range(24))
-    latent_base = np.array([2] * 24)
-    rng = np.random.default_rng()
-    pop = Population(ages, latent_base, rng, lib)
+    pop = Population(ages)
 
     pop.inf = np.array(
         [
