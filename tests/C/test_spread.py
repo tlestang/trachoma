@@ -65,7 +65,7 @@ def set_expected_clock(
 
 def test_spread():
     ages = np.array(range(16), dtype=np.int32)
-    pop = Population(ages, latent_base_period, RNG, lib)
+    pop = Population(ages)
 
     latent = {0, 4, 9, 14}
     infected = {0, 2, 4, 9, 10, 14}
@@ -98,6 +98,7 @@ def test_spread():
     expected_count = pop.count + new_i
 
     lib.spread.restype = None
+    # Use c_ubyte to match with uin8_t type
     lib.spread(pop, c_ubyte(np.packbits(new_i)[0]), c_int(0))
     lib.spread(pop, c_ubyte(np.packbits(new_i)[1]), c_int(1))
 

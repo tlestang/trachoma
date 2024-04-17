@@ -40,13 +40,6 @@ class Population:
 
     :param ages: List of ages for each individuals in the population
     :type ages: array_like
-    :param latent_base: The base latent period for each individuals in
-        the population
-    :type latent_base: array_like
-    :param rng: A random generator instance
-    :type rng: numpy.random.Generator
-    :param lib: A handle to the C core library
-    :type lib: ctypes.CDLL
 
     .. seealso::
 
@@ -60,10 +53,7 @@ class Population:
     >>> import numpy, ctypes
     >>> from ntdmc_trachoma.state import Population
     >>> ages = [832, 156, 2340, 1664, 3328]
-    >>> latent_base = [2] * 5
-    >>> rng = numpy.random.default_rng()
-    >>> lib = ctypes.CDLL('./libtrachoma.so')
-    >>> pop = Population(ages, latent_base, rng, lib)
+    >>> pop = Population(ages)
 
 
     Accessing ``Population`` properties:
