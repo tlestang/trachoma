@@ -7,12 +7,12 @@
 struct state {
   /** Population size */
   int n;
-  /** latent state array */
-  uint8_t *lat;
   /** Infected state array */
   uint8_t *inf;
   /** Diseased state array */
   uint8_t *dis;
+  /** latent state array */
+  uint8_t *lat;
   /** Clock array named 'clockm' to avoid clash with built-in clock()
    function */
   int *clockm;
