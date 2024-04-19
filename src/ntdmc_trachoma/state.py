@@ -119,7 +119,7 @@ class Population:
     def lat(self, a):
         self._lat = np.packbits(a)
 
-    def seed_infection(self, k, latent_period_func, bact_load_func):
+    def seed_infection(self, k, latent_periods, latent_period_func, bact_load_func):
         """Set a fraction of the population to the *latent* stage
 
         This function takes two functions as arguments, used to set
@@ -143,12 +143,16 @@ class Population:
 
         self.lat = self.lat | latent_mask
         self.clock[latent_mask] = [
-            latent_period_func(count=0) for infected in latent_mask if infected
+            latent_period_func(count, base)
+            for count, base in zip(
+                    self.count[latent_mask],
+                    latent_periods[latent_mask],
+            )
         ]
         self.bact_load[latent_mask] = [
-            bact_load_func(count=0) for infected in latent_mask if infected
+            bact_load_func(count) for count in self.count[latent_mask]
         ]
-        self.count[latent_mask] = 1
+        self.count[latent_mask] += 1
 
         return latent_ids
 

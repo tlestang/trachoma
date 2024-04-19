@@ -75,8 +75,9 @@ class Simulation:
         self.pop = Population(ages)
         self.pop.seed_infection(
             k=params["pop"].n_initially_infected,
-            latent_period_func=get_latent_period(self.base_periods.latent),
-            bact_load_func=get_bact_load(count=0),
+            latent_periods=self.base_periods.latent,
+            latent_period_func=self.get_latent_period_func(),
+            bact_load_func=self.get_bact_load_func(),
         )
 
         setup_core.set_base_periods(self.lib, self.base_periods)
@@ -89,17 +90,17 @@ class Simulation:
         # instead?
         self.groups = setup_core.set_groups(self.lib, params["pop"].groups)
 
-    def get_latent_period_func(self, base_latent_period):
+    def get_latent_period_func(self):
         clib_func = self.lib.setlatenttime
         clib_func.restype = ctypes.c_int
-        clib_func.argtypes = [ctypes.c_int]
-        return (lambda count: clib_func(count, base_latent_period))
+        clib_func.argtypes = [ctypes.c_int, ctypes.c_int]
+        return clib_func
 
-    def get_bact_load_func(self, infection_count):
-        clib_func = self.lib.bact_load
+    def get_bact_load_func(self):
+        clib_func = self.lib.get_bact_load
         clib_func.restype = ctypes.c_double
         clib_func.argtypes = [ctypes.c_int]
-        return (lambda x: clib_func(infection_count))
+        return clib_func
 
     def load_parameters(self, parameters_filepath: Path):
         with parameters_filepath.open('r') as f:
