@@ -4,7 +4,8 @@
 	"max_age": 3120,
 	"average_age": 1040,
 	"groups": [468, 780, 3121],
-	"bgd_mortality_rate": 2080
+	"bgd_mortality_rate": 2080,
+	"n_initially_infected": 307
     },
     "infection": {
 	"v1": 1.0,

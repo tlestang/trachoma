@@ -39,7 +39,8 @@ InfectionParameters = namedtuple(
 PopulationParameters = namedtuple(
     typename="PopulationParameters",
     field_names=[
-        "size", "max_age", "average_age", "groups", "bgd_mortality_rate"
+        "size", "max_age", "average_age",
+        "groups", "bgd_mortality_rate", "n_initially_infected",
     ]
 )
 BasePeriods = namedtuple("BasePeriods", ["latent", "ID", "D"])
