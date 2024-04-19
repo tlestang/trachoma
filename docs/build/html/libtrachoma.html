@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>libtrachoma.c &#8212; NTDMC trachoma  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API reference" href="api/index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="libtrachoma-c">
+<h1>libtrachoma.c<a class="headerlink" href="#libtrachoma-c" title="Link to this heading">¶</a></h1>
+<p>The dynamical core of the NTDMC trachoma model is implemented in the C
+programming language. This C core consists of a function
+<a class="reference internal" href="#c.step" title="step"><code class="xref c c-func docutils literal notranslate"><span class="pre">step()</span></code></a> and a few <a class="reference internal" href="#c-helper-functions"><span class="std std-ref">helper functions</span></a>
+that Python code can call to initialise the value of various
+variables.</p>
+<section id="stepping-function">
+<h2>Stepping function<a class="headerlink" href="#stepping-function" title="Link to this heading">¶</a></h2>
+<dl class="c function">
+<dt class="sig sig-object c" id="c.step">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">step</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#c.state" title="state"><span class="n"><span class="pre">state</span></span></a><span class="w"> </span><span class="n"><span class="pre">st</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#c.output" title="output"><span class="n"><span class="pre">output</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">niter</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">beta</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.step" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Step the trachoma model over multiple iterations.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">step</span></code> function is the main entry point in the
+<code class="docutils literal notranslate"><span class="pre">libtrachoma</span></code> library.  One iteration consits of the following
+stages:</p>
+<ul class="simple">
+<li><p>Compute infection probability for each individual</p></li>
+<li><p>Select individuals for infection</p></li>
+<li><p>Apply transition rules</p></li>
+<li><p>Apply background mortality</p></li>
+<li><p>Apply old age mortality</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>st</strong> – The population to evolve in time</p></li>
+<li><p><strong>niter</strong> – The number of iterations to perform</p></li>
+<li><p><strong>beta</strong> – The value of the beta parameter to simulate for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Param<span class="colon">:</span></dt>
+<dd class="field-even"><p>out: The output container</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="helper-functions">
+<span id="c-helper-functions"></span><h2>Helper functions<a class="headerlink" href="#helper-functions" title="Link to this heading">¶</a></h2>
+<dl class="c function">
+<dt class="sig sig-object c" id="c.set_base_periods">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_base_periods</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">latent_base_m</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">ID_base_m</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">D_base_m</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.set_base_periods" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Set global pointers to memory describing the base infection periods.</p>
+<p>Each individual in the population is assigned a base value for the
+time spent in each of the infection stages.  This value will
+typically be used for setting the period of time the individual
+will stay in that stage following the first infection.  Period
+values for subsequent infection will be function of the base
+values.</p>
+<p>Note that, as oppsesed to infected state arrays, base periods
+arrays are not members of the State structure.  Instead they are
+set globally.</p>
+<p>This function is meant to be used by Python code to set pointers
+to data handle by NumPy arrays:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.ctypeslib</span> <span class="kn">import</span> <span class="n">ndpointer</span>
+
+<span class="n">clib</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="s2">&quot;/path/to/trachoma/c/lib.so&quot;</span><span class="p">)</span>
+<span class="n">clib</span><span class="o">.</span><span class="n">set_base_periods</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ndpointer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">ndpointer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">ndpointer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="n">clib</span><span class="o">.</span><span class="n">set_base_periods</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">latent_base</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># let NumPy handle memory</span>
+<span class="n">ID_base</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">D_base</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">clib</span><span class="o">.</span><span class="n">set_base_periods</span><span class="p">(</span><span class="n">latent_base</span><span class="p">,</span> <span class="n">ID_base</span><span class="p">,</span> <span class="n">D_base</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>latent_base_m</strong> – A pointer to a memory location containing
+the base value for the latent period of each individual in the
+population</p></li>
+<li><p><strong>ID_base_m</strong> – A pointer to a memory location containing
+the base value for the <em>ID</em> period of each individual in the
+population</p></li>
+<li><p><strong>D_base_m</strong> – A pointer to a memory location containing
+the base value for the <em>D</em> period of each individual in the
+population</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.set_infection_parameters">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_infection_parameters</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">v1_m</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">v2_m</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">phi_m</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps_m</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.set_infection_parameters" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Set global variales to values related to infection probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1_m</strong> – Value for the <span class="math notranslate nohighlight">\(v_1\)</span> infection parameter.</p></li>
+<li><p><strong>v1_m</strong> – Value for the <span class="math notranslate nohighlight">\(v_2\)</span> infection parameter.</p></li>
+<li><p><strong>v1_m</strong> – Value for the <span class="math notranslate nohighlight">\(\phi\)</span> infection parameter.</p></li>
+<li><p><strong>v1_m</strong> – Value for the <span class="math notranslate nohighlight">\(\epsilon\)</span> infection parameter.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.set_background_mortality">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_background_mortality</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">prob</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.set_background_mortality" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Set value of background mortality probability.</p>
+<p>The background mortality probability is expressed as</p>
+<div class="math notranslate nohighlight">
+\[r = 1 - e^{1 / \tau}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\tau\)</span> is the background mortality rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prob</strong> – Mortality probability value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="structures">
+<h2>Structures<a class="headerlink" href="#structures" title="Link to this heading">¶</a></h2>
+<dl class="c struct">
+<dt class="sig sig-object c" id="c.state">
+<span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">state</span></span></span><a class="headerlink" href="#c.state" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Represent the state of a population of individuals.</p>
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.n">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">n</span></span></span><a class="headerlink" href="#c.state.n" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Population size</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.inf">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">inf</span></span></span><a class="headerlink" href="#c.state.inf" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Infected state array</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.dis">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dis</span></span></span><a class="headerlink" href="#c.state.dis" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Diseased state array</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.lat">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">lat</span></span></span><a class="headerlink" href="#c.state.lat" title="Link to this definition">¶</a><br /></dt>
+<dd><p>latent state array</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.clockm">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">clockm</span></span></span><a class="headerlink" href="#c.state.clockm" title="Link to this definition">¶</a><br /></dt>
+<dd><dl class="simple">
+<dt>Clock array named ‘clockm’ to avoid clash with built-in clock()</dt><dd><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.ages">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ages</span></span></span><a class="headerlink" href="#c.state.ages" title="Link to this definition">¶</a><br /></dt>
+<dd><p>ages array</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.count">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">count</span></span></span><a class="headerlink" href="#c.state.count" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Infection count array</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.state.bactload">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">bactload</span></span></span><a class="headerlink" href="#c.state.bactload" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Bacterial load array</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="c struct">
+<dt class="sig sig-object c" id="c.output">
+<span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">output</span></span></span><a class="headerlink" href="#c.output" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Hold pointers to records of various population properties.</p>
+<p>This structure holds information about the number of records made
+so far.  New records are appended to previous one. For instance,
+after K records have been made, the <code class="docutils literal notranslate"><span class="pre">ages</span></code> array will be filled
+with K * N integers, where N is the population size.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">ntdmc_trachoma.output.Output</span></code>.</p>
+</div>
+<dl class="c member">
+<dt class="sig sig-object c" id="c.output.inf">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">inf</span></span></span><a class="headerlink" href="#c.output.inf" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Infected states</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.output.dis">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dis</span></span></span><a class="headerlink" href="#c.output.dis" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Diseased states</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.output.lat">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">lat</span></span></span><a class="headerlink" href="#c.output.lat" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Latent states</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.output.ages">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ages</span></span></span><a class="headerlink" href="#c.output.ages" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Individuals’ age</p>
+</dd></dl>
+
+<dl class="c member">
+<dt class="sig sig-object c" id="c.output.nrecords">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">nrecords</span></span></span><a class="headerlink" href="#c.output.nrecords" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Current number of records</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">NTDMC trachoma</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scenarios.html">Writing scenario files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Writing parameter files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">libtrachoma.c</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#stepping-function">Stepping function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#helper-functions">Helper functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structures">Structures</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="api/index.html" title="previous chapter">API reference</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, NTD Modelling Consortium.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/libtrachoma.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

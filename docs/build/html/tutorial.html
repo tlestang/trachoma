@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tutorial &#8212; NTDMC trachoma  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Writing scenario files" href="scenarios.html" />
+    <link rel="prev" title="Welcome to NTDMC trachoma’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Link to this heading">¶</a></h1>
+<p>This short tutorial will guide you through creating and running a
+trachoma simulation using the NTDMC trachoma model.  It also
+illustrates an example of post-processing simulation data to display
+the number of infected individuals in a given age group over time.</p>
+<section id="creating-a-simulation">
+<h2>Creating a simulation<a class="headerlink" href="#creating-a-simulation" title="Link to this heading">¶</a></h2>
+<p>To start off with, make sure you have prepared valid parameters and
+scenario files. See <a class="reference internal" href="parameters.html"><span class="doc">Writing parameter files</span></a> and <a class="reference internal" href="scenarios.html"><span class="doc">Writing scenario files</span></a>.
+For this tutorial, wee will use the following parameters and scenario:</p>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="_downloads/645105cf7f2494916a66974b1e04fbb3/parameters.json"><code class="xref download docutils literal notranslate"><span class="pre">parameters.json</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/3dd9b8be6c4349224b7546fca4dfc683/scenario.json"><code class="xref download docutils literal notranslate"><span class="pre">scenario.json</span></code></a></p></li>
+</ul>
+<p>Next, create a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code> instance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">ntmc_trachoma</span> <span class="kn">import</span> <span class="n">Simulation</span>
+
+<span class="n">param_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;parameters.json&quot;</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">param_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Creating a <code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code> object automatically creates a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Population</span></code> in which 30%
+of the individuals are infected.  Infected individuals are randomly
+(uniformly) selected.</p>
+</section>
+<section id="running-a-simulation">
+<h2>Running a simulation<a class="headerlink" href="#running-a-simulation" title="Link to this heading">¶</a></h2>
+<p>Next, we can run scenario over a range of values of the spread
+parameter <span class="math notranslate nohighlight">\(\beta\)</span>.  Let’s say these values are listed in a text
+file <code class="docutils literal notranslate"><span class="pre">beta_values.txt</span></code>, with one value per line.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">betavals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
+<span class="n">scenario_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;scenario.json&#39;</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">scenario_path</span><span class="p">,</span> <span class="n">betavals</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">record=True</span></code>, enables recording of the population state at
+each iteration of the model within the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> object’s
+<code class="xref py py-class docutils literal notranslate"><span class="pre">output</span> <span class="pre">buffer</span></code>.</p>
+</section>
+<section id="writing-simulation-output-to-disk">
+<h2>Writing simulation output to disk<a class="headerlink" href="#writing-simulation-output-to-disk" title="Link to this heading">¶</a></h2>
+<p>Once the simulation is finished, we can write the content of the
+output buffer on disk:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This creates (or overwrites) 4 binary files containing:</p>
+<ul class="simple">
+<li><p>The latent state (<code class="docutils literal notranslate"><span class="pre">latent_state.bin</span></code>).</p></li>
+<li><p>The infected state (<code class="docutils literal notranslate"><span class="pre">infected_state.bin</span></code>).</p></li>
+<li><p>The diseased state (<code class="docutils literal notranslate"><span class="pre">diseased_state.bin</span></code>).</p></li>
+<li><p>The individuals’ age (<code class="docutils literal notranslate"><span class="pre">ages.bin</span></code>).</p></li>
+</ul>
+<p>over the course of the simulation.  For instance, if you simulated the
+model over 52 weeks (52 iterations) with a population size of 1000,
+<code class="docutils literal notranslate"><span class="pre">ages.bin</span></code> would contain 52000 integers. The first 1000 corresping
+to the age distribution for the first iteration of the model, the next
+1000 after corrsponding to the second iteration, and so on and so forth.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Because the output files are binary files, the type of the data is
+important.  Infection state data is written as 8-bits unsigned
+integers (<code class="docutils literal notranslate"><span class="pre">numpy.uint8</span></code>) with one single bit per individual.  Age
+data is also written as 8-bits unsigned integers, but this time with
+one word (8-bits) per individual.  You check that the size of
+<code class="docutils literal notranslate"><span class="pre">ages.bin</span></code> is 8 times the size of any of the other 3 output files.</p>
+</div>
+</section>
+<section id="post-processing-simulation-output-an-example">
+<h2>Post-processing simulation output: an example<a class="headerlink" href="#post-processing-simulation-output-an-example" title="Link to this heading">¶</a></h2>
+<p>We can now use this model output for post-processing.  As an example,
+let’s plot the evolution of trachoma prevalence among 9 to 15 years
+olds.</p>
+<p>The plan is straightforward: for each value of the math:<cite>beta</cite>
+parameter, we read the corresponding records in the <code class="docutils literal notranslate"><span class="pre">ages.bin</span></code> and
+<code class="docutils literal notranslate"><span class="pre">infection_state.bin</span></code> ouput files.  Because individuals are sorted
+by increasing age, we can easily determine which subset of the
+population correspond to individuals ages between 9 and 15 years old.</p>
+<p>We start by looping over the values of <span class="math notranslate nohighlight">\(\beta\)</span>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">popsize</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="n">nrecords</span> <span class="o">=</span> <span class="mi">1144</span>
+<span class="n">nbytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">nrecords</span> <span class="o">*</span> <span class="n">popsize</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span>
+<span class="k">for</span> <span class="n">ibeta</span><span class="p">,</span> <span class="n">beta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">betavals</span><span class="p">):</span>
+    <span class="n">ages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span>
+         <span class="s2">&quot;ages.bin&quot;</span><span class="p">,</span>
+         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+         <span class="n">count</span><span class="o">=</span><span class="n">size</span> <span class="o">*</span> <span class="n">nrecords</span><span class="p">,</span>
+         <span class="n">offset</span><span class="o">=</span><span class="n">ibeta</span> <span class="o">*</span> <span class="n">size</span> <span class="o">*</span> <span class="n">nrecords</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">inf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span>
+        <span class="s2">&quot;infection_state.bin&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+        <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
+        <span class="n">offset</span><span class="o">=</span><span class="n">ibeta</span> <span class="o">*</span> <span class="n">count</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Because our <a class="reference download internal" download="" href="_downloads/3dd9b8be6c4349224b7546fca4dfc683/scenario.json"><code class="xref download docutils literal notranslate"><span class="pre">scenario</span></code></a> spans 1144 weeks
+and records are made every weeks, we set <code class="docutils literal notranslate"><span class="pre">nrecords=1144</span></code>.  The
+infected state of individuals are packed together intro groups of 8
+bits, with one bit per individual.  To read all the age records
+made for a given value of <span class="math notranslate nohighlight">\(\beta\)</span>, we need to read
+<code class="docutils literal notranslate"><span class="pre">nrecords</span> <span class="pre">*</span> <span class="pre">popsize</span></code> integers. Because age data is represented by
+1-byte unsigned integers, that’s <code class="docutils literal notranslate"><span class="pre">nrecords</span> <span class="pre">*</span> <span class="pre">popsize</span></code> bytes to
+read.  Similarly for the amount of memory to read all the infected
+state records, expected with divide the bytes count by 8. This is
+because the infected states of individual are packed into 1-byte
+(8-bits) integers with one bit per individual.</p>
+<p>Speaking of, let’s unpack these bits into a boolean array of size
+<code class="docutils literal notranslate"><span class="pre">popsize</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rec_size</span> <span class="o">=</span> <span class="n">popsize</span> <span class="o">//</span> <span class="mi">8</span>
+<span class="n">inf_records</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Unpack infected state record into a boolean array</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span>
+        <span class="n">inf_records_packed</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">rec_size</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">rec_size</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrecords</span><span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>The above lines of Python generate a list of NumPy arrays, with
+each array containing data for an unpacked record, that is a
+list of <code class="docutils literal notranslate"><span class="pre">popsize</span></code> True/False values.</p>
+<p>Next, we need to identify which of the individuals are aged
+between 9 and 15 years old.  We need to do so for each record,
+since age distribution varies over the course of a simulation,
+and therefore along records.  We then simply count how many
+individual in the sub-population are infected.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ninf</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span>
+        <span class="n">inf</span><span class="p">[(</span><span class="n">ages</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ages</span> <span class="o">&lt;=</span> <span class="mi">15</span> <span class="o">*</span> <span class="mi">52</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">inf</span><span class="p">,</span> <span class="n">ages</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inf_records</span><span class="p">,</span> <span class="n">ages_records</span><span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Finally, we can plot the infection count over time:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ninf</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;beta = </span><span class="si">{</span><span class="n">beta</span><span class="si">}</span><span class="s2">)</span>
+</pre></div>
+</div>
+<img alt="_images/tutorial_plot.png" src="_images/tutorial_plot.png" />
+<p>You can download the full post-processing script <a class="reference download internal" download="" href="_downloads/7906c64594ab167bbd035e22c32a9d85/plot_ninf.py"><code class="xref download docutils literal notranslate"><span class="pre">here</span></code></a>.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">NTDMC trachoma</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-simulation">Creating a simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-a-simulation">Running a simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-simulation-output-to-disk">Writing simulation output to disk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-processing-simulation-output-an-example">Post-processing simulation output: an example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scenarios.html">Writing scenario files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Writing parameter files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libtrachoma.html">libtrachoma.c</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to NTDMC trachoma’s documentation!</a></li>
+      <li>Next: <a href="scenarios.html" title="next chapter">Writing scenario files</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, NTD Modelling Consortium.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/tutorial.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

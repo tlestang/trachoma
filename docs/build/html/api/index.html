@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API reference &#8212; NTDMC trachoma  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libtrachoma.c" href="../libtrachoma.html" />
+    <link rel="prev" title="Writing parameter files" href="../parameters.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="api-reference">
+<h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="simulation">
+<h2>Simulation<a class="headerlink" href="#simulation" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntdmc_trachoma.simulation.Simulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.simulation.Simulation" title="Link to this definition">¶</a></dt>
+<dd><p>Encapsulate top-level facilities for managing a trachoma simulation.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class provides is the primary entry point to
+handling a trachoma simulation over a range of beta parameters
+values.  It is responsible for reading parameters, loading and
+initialising the underlying C library, as well as providing an
+interface for writing simulation results on disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parameters_filepath</strong> (<em>pathlib.Path</em>) – The location of a valid parameter
+file. See <a class="reference internal" href="../parameters.html"><span class="doc">Writing parameter files</span></a>.</p>
+</dd>
+</dl>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ntdmc_trachoma</span> <span class="kn">import</span> <span class="n">Simulation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;parameters.json&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">betavals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;scenario.json&quot;</span><span class="p">),</span> <span class="n">betavals</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="ntdmc_trachoma.simulation.Simulation.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">betavals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.simulation.Simulation.simulate" title="Link to this definition">¶</a></dt>
+<dd><p>Simulate model over a given scenario, for a range of
+spread parameter values.</p>
+<p>This method does not modify the Simulation’s instance <code class="docutils literal notranslate"><span class="pre">pop</span></code>
+attribute.  Instead, a copy is made before passing it down to
+the function stepping the model, which does alter this copy.
+On the contrary, the <cite>output</cite> attribute is modified, adding
+new values generated at each iteration.  In other words, the
+<code class="docutils literal notranslate"><span class="pre">simulate</span></code> method has no side effects other than recording
+simulation ouput in the <cite>Simulation.output</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scenario_filepath</strong> (<em>pathlib.Path</em>) – location of a valid scenario
+file. See <a class="reference internal" href="../scenarios.html"><span class="doc">Writing scenario files</span></a>.</p></li>
+<li><p><strong>betavals</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – The list of beta parameter values to run the
+simulation for.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+<section id="population">
+<h2>Population<a class="headerlink" href="#population" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntdmc_trachoma.state.Population">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.state.</span></span><span class="sig-name descname"><span class="pre">Population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.state.Population" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a population of individuals.</p>
+<p>A Population object keeps track of population properties in a
+Structure of Arrays (SoA) fashion.  It maintains a collection of
+one-dimensional arrays of length equal to the number of
+individuals represented in the population. These arrays are:</p>
+<ul class="simple">
+<li><p>The <strong>latent</strong> state of individuals (<cite>lat</cite>, boolean)</p></li>
+<li><p>The <strong>infected</strong> state of individuals (<cite>inf</cite>, boolean)</p></li>
+<li><p>The <strong>diseased</strong> state of individuals (<cite>dis</cite>, boolean)</p></li>
+<li><p>The clock value for each individual (<cite>clock</cite>, integer)</p></li>
+<li><p>The age value for each individual (<cite>ages</cite>, 8-bits unsigned integer)</p></li>
+<li><p>The infection count for each individual (<cite>count</cite>, unsigned integer)</p></li>
+<li><p>The bacterial load for each individual (<cite>bact_load</cite>, float)</p></li>
+</ul>
+<p>Initially, the arrays listed above are sorted according to
+individuals’ increasing age value.  However, the a <code class="docutils literal notranslate"><span class="pre">Population</span></code>
+instance does not garantuee that this order is maitained whenever
+one or more of these arrays are modified: is it up to users of the
+<code class="docutils literal notranslate"><span class="pre">Population</span></code> class to maintain this sorted order if necessary.</p>
+<p>..note:</p>
+<p>The latent, infected and diseased state of individual is
+internally represented as an array of (N / 8) 8-bits unsigned
+integers (np.uint8), with one bit per individual. This is hidden
+to users of the <code class="docutils literal notranslate"><span class="pre">Population</span></code> class by providing access to these
+arrays through properties, packing or unpacking bits whenever an
+infection state array is accessed or set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ages</strong> (<em>array_like</em>) – List of ages for each individuals in the population</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../libtrachoma.html#c.state" title="state"><code class="xref c c-struct docutils literal notranslate"><span class="pre">struct</span> <span class="pre">state</span></code></a></p>
+</div>
+<section id="examples">
+<h3>Examples:<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>Instanciating a <code class="docutils literal notranslate"><span class="pre">Population</span></code> object:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span><span class="o">,</span> <span class="nn">ctypes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ntdmc_trachoma.state</span> <span class="kn">import</span> <span class="n">Population</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ages</span> <span class="o">=</span> <span class="p">[</span><span class="mi">832</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">2340</span><span class="p">,</span> <span class="mi">1664</span><span class="p">,</span> <span class="mi">3328</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">ages</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Accessing <code class="docutils literal notranslate"><span class="pre">Population</span></code> properties:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">ages</span>
+<span class="go">array([156, 832, 1664, 2340, 3328])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">lat</span>
+<span class="go">array([True, False, False, False, False])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">inf</span>
+<span class="go">array([True, False, False, True, False])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">dis</span>
+<span class="go">array([False, True, False, True, False])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="ntdmc_trachoma.state.Population.seed_infection">
+<span class="sig-name descname"><span class="pre">seed_infection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latent_period_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bact_load_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.state.Population.seed_infection" title="Link to this definition">¶</a></dt>
+<dd><p>Set a fraction of the population to the <em>latent</em> stage</p>
+<p>This function takes two functions as arguments, used to set
+the latent period value and bacterial load value for selected
+individuals. They are called once per individual.  These two
+function are functions of one integer, the current infection
+count for the individual (zero for for a fresh <code class="docutils literal notranslate"><span class="pre">Population</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>k</strong> (<em>int</em>) – The number of individuals to set as infected (whose state to
+set as latent).</p>
+</dd>
+<dt class="field-even">Latent_period_func<span class="colon">:</span></dt>
+<dd class="field-even"><p>A function of one integer argument returning the latent
+period value for a given individual.</p>
+</dd>
+<dt class="field-odd">Bact_load_func<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A function of one integer argument returning the
+bacterial load for a given individual.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+<section id="module-ntdmc_trachoma.mda">
+<span id="events"></span><h2>Events<a class="headerlink" href="#module-ntdmc_trachoma.mda" title="Link to this heading">¶</a></h2>
+<p>Provide access to Python classes representing different types of
+events, currently:</p>
+<ul class="simple">
+<li><p>MDA intervention</p></li>
+<li><p>Simulation start</p></li>
+<li><p>Simulation end</p></li>
+</ul>
+<p>Events are represented as Callable classes, that is regular Python
+classes for which a __call__ method is implemented. This method <em>must</em>
+take a <cite>Population</cite> object as only argument. It is expected to modify
+this object in-place as part of modelling the impact of the event.</p>
+<p>Instance of event classes are supposed to represent all occurences of
+the event for a given intervention. For example, the events list for a
+annual MDA campaign from 2030 to 2040 will contain 10 references to
+the <em>same</em> MDA instance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By construct, all MDA in a given intervention (campaign) have the
+same parameters.</p>
+</div>
+<section id="event-specific-population-attributes">
+<h3>Event-specific <code class="docutils literal notranslate"><span class="pre">Population</span></code> attributes<a class="headerlink" href="#event-specific-population-attributes" title="Link to this heading">¶</a></h3>
+<p>Event objects often need to keep memory of their previous impact on a
+population.  For example a MDA object, to work on a population, must
+be aware of the number of times an individual received the treatment
+in the past.  A vaccination event would likely must be able to tell
+whether an individual in the population has received one or more doses
+already.  Events objects do not keep any state related any Population
+they work on. Instead, they ‘attach’ information to the <cite>Population</cite>
+instance as a event object specific attribute. The attribute is named
+according to the format:</p>
+<blockquote>
+<div><p>&lt;event type&gt;_&lt;event object id&gt;_&lt;generic attribute name&gt;</p>
+</div></blockquote>
+<p>where <cite>&lt;event object id&gt;</cite> is the underlying identifier of the Python
+object, obtained with <cite>id()</cite>. Therefore the attribute is specific to
+the event <em>instance</em>, not the class itself. It means two different
+instances of the same event class can attach independant information
+to the same population object. for instance two different MDA
+campaigns. Event attributes are created the first time the event
+object processes the <cite>Population</cite> object, and only update subsequent
+times.</p>
+</section>
+<section id="id1">
+<h3>Example:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">ages</span><span class="o">=</span><span class="n">ranges</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">17</span><span class="p">),</span> <span class="n">latent_base</span><span class="o">=</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mdaevent</span> <span class="o">=</span> <span class="n">MDA</span><span class="p">(</span><span class="n">coverage</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">efficacy</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.78</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">id</span><span class="p">(</span><span class="n">mdaevent</span><span class="p">)</span>
+<span class="go">10861224</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">mda_10861224_treatment_count</span>
+<span class="go">AttributeError: &#39;MDA&#39; object has no attribute &#39;mda_10861224_treatment_count&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mdaevent</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">mda_10861224_treatment_count</span>
+<span class="go">np.array([0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 ,0, 0, 0, 1, 0], dtype=np.int32)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="available-event-classes">
+<h2>Available event classes<a class="headerlink" href="#available-event-classes" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntdmc_trachoma.mda.MDA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.mda.</span></span><span class="sig-name descname"><span class="pre">MDA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coverage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efficacy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.mda.MDA" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a MDA event.</p>
+<p>MDA events attach a <cite>treatment_count</cite> attribute to Population
+objets they are applied to.  This attribute is a NumPy integer
+array keeping track of how many times each individual in the
+population was administered the treatment.</p>
+<p>The probability of treatment is function of how many times this
+individual received the treatment in the past. Denoting coverage
+and compliance levels by <span class="math notranslate nohighlight">\(C\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span> respectively,
+it is expressed as</p>
+<div class="math notranslate nohighlight">
+\[p = \frac{C(1 - \rho) + m\rho}{1 + \rho (k - 1)}\]</div>
+<p>where <span class="math notranslate nohighlight">\(m\)</span> and <cite>k</cite> represent the individual’s current
+treatment count and how many this the MDA event was performed in
+the past, respectively.</p>
+<p>To minimise the number of computations, we recast the above expressions into</p>
+<div class="math notranslate nohighlight">
+\[p = \frac{b + m}{a + k}\]</div>
+<p>where <span class="math notranslate nohighlight">\(a = \rho^{-1} - 1\)</span> and <span class="math notranslate nohighlight">\(b = a * C\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coverage</strong> (<em>number between 0 and 1</em>) – Coverage level</p></li>
+<li><p><strong>efficacy</strong> (<em>number between 0 and 1</em>) – Treatment efficacy value</p></li>
+<li><p><strong>rho</strong> (<em>number between 0 and 1</em>) – Compliance level</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntdmc_trachoma.mda.start_sim">
+<span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.mda.</span></span><span class="sig-name descname"><span class="pre">start_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.mda.start_sim" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntdmc_trachoma.mda.end_sim">
+<span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.mda.</span></span><span class="sig-name descname"><span class="pre">end_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.mda.end_sim" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="creating-the-events-list-from-a-scenario-definition">
+<h2>Creating the events list from a scenario definition<a class="headerlink" href="#creating-the-events-list-from-a-scenario-definition" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">process_scenario_definition.py</span></code> module exposes only one
+function <cite>process_scenario_definition</cite>.  This function is used to
+process a scenario definition file and construct a list of events a
+<a class="reference internal" href="#ntdmc_trachoma.simulation.Simulation" title="ntdmc_trachoma.simulation.Simulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code></a> instance
+can work with. See <a class="reference internal" href="#ntdmc_trachoma.simulation.Simulation.simulate" title="ntdmc_trachoma.simulation.Simulation.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">Simulation.simulate</span></code></a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ntdmc_trachoma.process_scenario_definition.process_scenario_definition">
+<span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.process_scenario_definition.</span></span><span class="sig-name descname"><span class="pre">process_scenario_definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.process_scenario_definition.process_scenario_definition" title="Link to this definition">¶</a></dt>
+<dd><p>Read a scenario definition file and build a list of events.</p>
+<p>A scenario defines a list of programs, themselves defining
+one or several lists of interventions.  For instance, a program
+could define a bi-annual MDA intervention between 2024 and 2034,
+as well as a annual vaccination campaign between 2030 and 2034.</p>
+<p>The list of events is returned sorted according to increasing
+dates.  The final list always start with a “simulation start”
+event and ends with a “simulation end” event. See
+<a class="reference internal" href="#ntdmc_trachoma.mda.start_sim" title="ntdmc_trachoma.mda.start_sim"><code class="xref py py-func docutils literal notranslate"><span class="pre">events.start_sim</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em>) – Location of a valid scenario definition file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="recording-population-state-during-a-simulation">
+<h2>Recording population state during a simulation<a class="headerlink" href="#recording-population-state-during-a-simulation" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntdmc_trachoma.output.Output">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.output.</span></span><span class="sig-name descname"><span class="pre">Output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">popsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_records</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.output.Output" title="Link to this definition">¶</a></dt>
+<dd><p>Container for records of the population state at a given time.</p>
+<p>An instance of class <code class="docutils literal notranslate"><span class="pre">Output</span></code> contains various NumPy arrays
+acting as a in-memory storage area for recording various
+population properties over the course of a model simulation.  Each
+property (e.g. age or infected state) is stored into one
+corresponding long one-dimensionanal array in which records are
+appended to each others.  For instance, if K records are made,
+<code class="docutils literal notranslate"><span class="pre">output.age</span></code> will contain <code class="docutils literal notranslate"><span class="pre">K</span> <span class="pre">*</span> <span class="pre">N</span></code> integers, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the
+number of individuals in the population.</p>
+<p>In practice, the size storage arrays is not dynamic: it is set
+upon initialisation of an <code class="docutils literal notranslate"><span class="pre">Ouput</span></code> instance object.  The size of
+the array must be enough to hold all the records to be made during
+the object’s lifetime.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popsize</strong> (<em>int</em>) – Number of individuals in the population</p></li>
+<li><p><strong>max_records</strong> (<em>int</em>) – Maximum number of records the output buffer
+can hold.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Instances of class <code class="docutils literal notranslate"><span class="pre">Output</span></code> are storage buffers that are meant
+to be passed down to the <a class="reference internal" href="../libtrachoma.html#c.step" title="step"><code class="xref c c-func docutils literal notranslate"><span class="pre">C</span> <span class="pre">step</span> <span class="pre">function</span></code></a>. <code class="docutils literal notranslate"><span class="pre">Output</span></code> instances are automatically converted to a
+<a class="reference internal" href="../libtrachoma.html#c.output" title="output"><code class="xref c c-struct docutils literal notranslate"><span class="pre">struct</span> <span class="pre">output</span></code></a> object, of which a reference is
+passed to .  If an non-<code class="docutils literal notranslate"><span class="pre">NULL</span></code> pointer is passed to
+<a class="reference internal" href="../libtrachoma.html#c.step" title="step"><code class="xref c c-func docutils literal notranslate"><span class="pre">step()</span></code></a>, the records will be at every iteration of the
+model.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../libtrachoma.html#c.output" title="output"><code class="xref c c-struct docutils literal notranslate"><span class="pre">struct</span> <span class="pre">output</span></code></a></p>
+</div>
+<section id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">betavals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
+<span class="n">nweeks</span> <span class="o">=</span> <span class="mi">52</span>
+
+<span class="c1"># Instanciate Output class with the right amount of storage</span>
+<span class="c1"># space.</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span>
+         <span class="n">popsize</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="o">.</span><span class="n">ages</span><span class="p">),</span>
+         <span class="n">max_records</span><span class="o">=</span><span class="n">nsteps</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">betavals</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Load C library and step model.  The ``step`` function writes</span>
+<span class="c1"># to the output buffer at every iteration of the model.</span>
+<span class="n">clib</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="s2">&quot;/path/to/trachoma/c/lib.so&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">beta</span> <span class="ow">in</span> <span class="n">betavals</span><span class="p">:</span>
+    <span class="n">clib</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">nweeks</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+
+<span class="c1"># Finally, we can write the content of the output buffer on</span>
+<span class="c1"># disk.</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="ntdmc_trachoma.output.Output.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.output.Output.write" title="Link to this definition">¶</a></dt>
+<dd><p>Write the output buffer to disk</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">NTDMC trachoma</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scenarios.html">Writing scenario files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parameters.html">Writing parameter files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#population">Population</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-ntdmc_trachoma.mda">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-event-classes">Available event classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-the-events-list-from-a-scenario-definition">Creating the events list from a scenario definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recording-population-state-during-a-simulation">Recording population state during a simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../libtrachoma.html">libtrachoma.c</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../parameters.html" title="previous chapter">Writing parameter files</a></li>
+      <li>Next: <a href="../libtrachoma.html" title="next chapter">libtrachoma.c</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, NTD Modelling Consortium.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/api/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
