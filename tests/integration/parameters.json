@@ -1,0 +1,26 @@
+{
+    "population": {
+	"size": 1024,
+	"max_age": 3120,
+	"average_age": 1040,
+	"groups": [468, 780, 3121],
+	"bgd_mortality_rate": 2080,
+	"n_initially_infected": 307
+    },
+    "infection": {
+	"v1": 1.0,
+	"v2": 2.6,
+	"phi": 1.4,
+	"epsilon": 0.5
+    },
+    "durations": {
+	"I": 2.0,
+	"ID": 28.57,
+	"D": 42.86
+    },
+    "inf_red": 0.45,
+    "min_d": 1,
+    "min_id": 11,
+    "ag": 0.00179,
+    "aq": 0.0368
+}

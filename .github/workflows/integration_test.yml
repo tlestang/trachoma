@@ -1,0 +1,52 @@
+name: "Run simulation from scratch"
+
+on: push
+
+jobs:
+  run-sim:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install package
+      run: pip install .
+    - name: Run simulation
+      working-directory: ./
+      run: |
+        cp tests/integration/parameters.json .
+        cp tests/integration/scenario.json .
+        python tests/integration/run_sim_from_scratch.py
+    - name: Tar outputs
+      run: |
+        tar -cvf outputs.tar {diseased,infected,latent}_state.bin ages.bin
+    - uses: actions/upload-artifact@v4
+      with:
+        name: simulation-outputs
+        path: ./outputs.tar
+
+  plot_results:
+    name: Display results
+    needs: run-sim
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install matplotlib
+        run: pip install matplotlib
+      - name: Download outputs from simulation
+        uses: actions/download-artifact@v4
+        with:
+          name: simulation-outputs
+      - name: Extract simulation outputs
+        run: tar -xf outputs.tar
+      - name: Generate the plot
+        run: python tests/integration/plot_ninf.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prevalence-children-aged-9-to-15
+          path: ./prevalence_children_9_15.png
+
