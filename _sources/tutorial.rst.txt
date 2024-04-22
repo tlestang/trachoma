@@ -22,7 +22,7 @@ Next, create a new :py:class:`Simulation
 .. code-block:: python
 
    from pathlib import Path
-   from ntmc_trachoma import Simulation
+   from ntdmc_trachoma.simulation import Simulation
 
    param_path = Path("parameters.json")
    sim = Simulation(param_path)
