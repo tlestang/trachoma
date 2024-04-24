@@ -119,15 +119,23 @@ class MDA:
         # distribute treatment and update attribute. If not, set the
         # attribute.
         attrname = f"mda_{id(self)}_treatment_count"
-        try:
+        if hasattr(pop, attrname):
             treatment_count = getattr(pop, attrname)
+            # We need to determine which individuals were reset since
+            # the last __call__, and fix the current value of their
+            # treatment count. I.e. it should be set to 0.
+            assert hasattr(self, "ages")
+            # A way to check whether or not an individual was reset is
+            # to check if they are younger than they were last time!
+            treatment_count[pop.ages - self.ages < 0] = 0
             t = self.distribute_treatment(pop.size, treatment_count)
             treatment_count[t] += 1
-        except AttributeError:
+        else:
             # First MDA application is actually a special case where
             # treatment probablity is he coverage value itself.
             t = self.rng.uniform(size=pop.size) < self.coverage
             setattr(pop, attrname, t.astype(np.int32))
+            self.ages = pop.ages
 
         ntreated = np.count_nonzero(t)
         cured = np.zeros(pop.size, dtype=np.bool_)
