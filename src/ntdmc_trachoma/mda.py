@@ -63,7 +63,7 @@ np.array([0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 ,0, 0, 0, 1, 0], dtype=np.int32)
 import numpy as np
 
 
-class MDA:
+class MDA_legacy:
     r"""Represent a MDA event.
 
     MDA events attach a `treatment_count` attribute to Population
@@ -155,6 +155,18 @@ class MDA:
         self.count += 1
 
         return ntreated, np.count_nonzero(cured)
+
+
+class MDA:
+    def __init__(self, coverage, rho):
+        a = coverage * (1. - rho) / rho
+        b = (1 - coverage) * (1. - rho) / rho
+        self.parameters = [(a, b)]
+    
+    def __call__(self, pop):
+        attrname = f"mda_{id(self)}_treatment_probability"
+        if hasattr(pop. attrname):
+            treatment_prob = getattr(pop, attrname)
 
 
 # When an event doesn't need to hold any state, we can just define as
