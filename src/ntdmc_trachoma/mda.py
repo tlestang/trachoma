@@ -122,10 +122,10 @@ class MDA:
             # We need to determine which individuals were reset since
             # the last __call__, and fix the current value of their
             # treatment count. I.e. it should be set to 0.
-            assert hasattr(self, "ages")
+            assert hasattr(pop, "mda_ages")
             # A way to check whether or not an individual was reset is
             # to check if they are younger than they were last time!
-            treatment_count[pop.ages - self.ages < 0] = 0
+            treatment_count[pop.ages - pop.mda_ages < 0] = 0
             t = self.distribute_treatment(pop.size, treatment_count)
             treatment_count[t] += 1
         else:
@@ -133,7 +133,7 @@ class MDA:
             # treatment probablity is he coverage value itself.
             t = self.rng.uniform(size=pop.size) < self.coverage
             setattr(pop, attrname, t.astype(np.int32))
-            self.ages = pop.ages
+        pop.mda_ages = pop.ages.copy()
 
         ntreated = np.count_nonzero(t)
         cured = np.zeros(pop.size, dtype=np.bool_)
