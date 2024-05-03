@@ -50,12 +50,10 @@ Example:
 >>> rng = numpy.random.default_rng()
 >>> pop = Population(ages=ranges(1,17), latent_base=[16] * 2, rng)
 >>> mdaevent = MDA(coverage=0.8, efficacy=0.85, rho=0.78)
->>> id(mdaevent)
-10861224
->>> pop.mda_10861224_treatment_count
-AttributeError: 'MDA' object has no attribute 'mda_10861224_treatment_count'
+>>> pop.mda_treatment_count
+AttributeError: 'MDA' object has no attribute 'mda_treatment_count'
 >>> mdaevent(pop)
->>> pop.mda_10861224_treatment_count
+>>> pop.mda_treatment_count
 np.array([0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 ,0, 0, 0, 1, 0], dtype=np.int32)
 
 """
@@ -118,7 +116,7 @@ class MDA:
         # itself to the Population object passed to __call__. If it,
         # distribute treatment and update attribute. If not, set the
         # attribute.
-        attrname = f"mda_{id(self)}_treatment_count"
+        attrname = f"mda_treatment_count"
         if hasattr(pop, attrname):
             treatment_count = getattr(pop, attrname)
             # We need to determine which individuals were reset since
