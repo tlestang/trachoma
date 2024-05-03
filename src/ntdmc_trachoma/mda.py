@@ -58,10 +58,18 @@ np.array([0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 ,0, 0, 0, 1, 0], dtype=np.int32)
 
 """
 # TODO: Rename 'mda' module as 'events'
+from dataclasses import dataclass
+
 import numpy as np
 
 
-class MDA:
+@dataclass
+class MDA_legacy_data:
+    ages: np.array
+    treatment_count: np.array
+
+
+class MDA_legacy:
     r"""Represent a MDA event.
 
     MDA events attach a `treatment_count` attribute to Population
@@ -116,13 +124,12 @@ class MDA:
         # itself to the Population object passed to __call__. If it,
         # distribute treatment and update attribute. If not, set the
         # attribute.
-        attrname = f"mda_treatment_count"
-        if hasattr(pop, attrname):
-            treatment_count = getattr(pop, attrname)
+        if hasattr(pop, "mda_legacy_data"):
+            treatment_count = pop.mda_legacy_data.treatment_count
             # We need to determine which individuals were reset since
             # the last __call__, and fix the current value of their
             # treatment count. I.e. it should be set to 0.
-            assert hasattr(pop, "mda_ages")
+
             # A way to check whether or not an individual was reset is
             # to check if they are younger than they were last time!
             treatment_count[pop.ages - pop.mda_ages < 0] = 0
@@ -133,7 +140,7 @@ class MDA:
             # treatment probablity is he coverage value itself.
             t = self.rng.uniform(size=pop.size) < self.coverage
             setattr(pop, attrname, t.astype(np.int32))
-        pop.mda_ages = pop.ages.copy()
+        pop.mda_legacy_data.ages = pop.ages.copy()
 
         ntreated = np.count_nonzero(t)
         cured = np.zeros(pop.size, dtype=np.bool_)
