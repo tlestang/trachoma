@@ -8,3 +8,13 @@ version = "0.0.1"
 dependencies = [
     "numpy==1.26.4",
 ]
+
+[tool.setuptools]
+# Don't include C source files in src/libtrachoma into
+# built distribution, only src/ntd_trachoma package.
+# Shared objects are produced in that package directory,
+# see setup.py
+#
+# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+packages = ["ntdmc_trachoma"]
+package-dir={"" = "src"}
