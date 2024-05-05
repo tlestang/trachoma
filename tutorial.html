@@ -48,7 +48,7 @@ For this tutorial, wee will use the following parameters and scenario:</p>
 <li><p><a class="reference download internal" download="" href="_downloads/645105cf7f2494916a66974b1e04fbb3/parameters.json"><code class="xref download docutils literal notranslate"><span class="pre">parameters.json</span></code></a></p></li>
 <li><p><a class="reference download internal" download="" href="_downloads/3dd9b8be6c4349224b7546fca4dfc683/scenario.json"><code class="xref download docutils literal notranslate"><span class="pre">scenario.json</span></code></a></p></li>
 </ul>
-<p>Next, create a new <a class="reference internal" href="api/index.html#ntdmc_trachoma.simulation.Simulation" title="ntdmc_trachoma.simulation.Simulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code></a> instance:</p>
+<p>Next, create a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code> instance:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">ntdmc_trachoma.simulation</span> <span class="kn">import</span> <span class="n">Simulation</span>
 
@@ -56,7 +56,7 @@ For this tutorial, wee will use the following parameters and scenario:</p>
 <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">param_path</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Creating a <a class="reference internal" href="api/index.html#ntdmc_trachoma.simulation.Simulation" title="ntdmc_trachoma.simulation.Simulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code></a> object automatically creates a
+<p>Creating a <code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code> object automatically creates a
 <a class="reference internal" href="api/index.html#ntdmc_trachoma.state.Population" title="ntdmc_trachoma.state.Population"><code class="xref py py-class docutils literal notranslate"><span class="pre">Population</span></code></a> in which 30%
 of the individuals are infected.  Infected individuals are randomly
 (uniformly) selected.</p>
