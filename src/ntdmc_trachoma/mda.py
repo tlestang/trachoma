@@ -62,6 +62,18 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from state import Population
+
+
+# When an event doesn't need to hold any state, we can just define as
+# a function. After all, a function is a callable class.
+def start_sim(pop):
+    pass
+
+
+def end_sim(pop):
+    pass
+
 
 @dataclass
 class MDA_legacy_data:
@@ -162,11 +174,61 @@ class MDA_legacy:
         return ntreated, np.count_nonzero(cured)
 
 
-# When an event doesn't need to hold any state, we can just define as
-# a function. After all, a function is a callable class.
-def start_sim(pop):
-    pass
+@dataclass
+class MDA_data:
+    ages: np.array
+    treatment_probability: np.array
+    beta_dist_params: tuple[float]
 
 
-def end_sim(pop):
-    pass
+class MDA:
+    def __init__(self, coverage: float,
+                 correlation: float, efficacy: float,
+        ):
+        self.rng = np.random.default_rng()
+        self.a = coverage * (1. - correlation) / correlation
+        self.b = (1. - coverage) * (1. - correlation) / correlation
+        self.efficacy = efficacy
+
+    def __call__(self, pop: Population):
+        if not hasattr(pop, "MDA_data"):
+            pop.MDA_data = MDA_data(
+                ages=pop.ages,
+                treatment_probability = self.tment_prob,
+                beta_dist_params = (self.a, self.b)
+            )
+
+        was_reset = pop.MDA_data.ages < pop.ages
+        tment_prob_for_resets = np.beta(
+            *MDA_data.beta_dist_params,
+            size=np.count_nonzero(was_reset),
+        )
+        if pop.MDA_data.beta_dist_params != (self.a, self.b):
+            cur_prob = pop.MDA_data.tment_prob.copy()
+            cur_prob[was_reset] = tment_prob_for_resets
+            self.tment_prob = self.tment_prob[np.argsort(cur_prob)]
+        else:
+            self.tment_prob[was_reset] = tment_prob_for_resets
+        pop.MDA_data = MDA_data(
+            ages=pop.ages,
+            treatment_probability = self.tment_prob,
+            beta_dist_params = (self.a, self.b)
+        )
+
+        t = self.rng.uniform(size=pop.size) < self.tment_prob
+        ntreated = np.count_nonzero(t)
+        cured = np.zeros(pop.size, dtype=np.bool_)
+        cured[t] = self.rng.uniform(size=ntreated) < self.efficacy
+        # At this point it's tempting to write
+        #
+        # pop.inf[cured] = True
+        #
+        # but remember that pop.inf is in fact a call to the `inf`
+        # property getter so it won't actually modify the internal
+        # _inf attribute.
+        inf = pop.inf
+        inf[cured] = False
+        pop.inf = inf
+        pop.bact_load[cured] = 0
+
+        return ntreated, np.count_nonzero(cured)
