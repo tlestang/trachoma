@@ -144,15 +144,19 @@ class MDA_legacy:
 
             # A way to check whether or not an individual was reset is
             # to check if they are younger than they were last time!
-            treatment_count[pop.ages - pop.mda_ages < 0] = 0
+            was_reset = pop.ages - pop.mda_legacy_data.ages < 0
+            treatment_count[was_reset] = 0
             t = self.distribute_treatment(pop.size, treatment_count)
             treatment_count[t] += 1
         else:
             # First MDA application is actually a special case where
             # treatment probablity is he coverage value itself.
             t = self.rng.uniform(size=pop.size) < self.coverage
-            setattr(pop, attrname, t.astype(np.int32))
-        pop.mda_legacy_data.ages = pop.ages.copy()
+            treatment_count = t.astype(np.int32)  # True counts as 1 tment
+        pop.mda_legacy_data = MDA_legacy_data(
+            ages = pop.ages,
+            treatment_count = treatment_count,
+        )
 
         ntreated = np.count_nonzero(t)
         cured = np.zeros(pop.size, dtype=np.bool_)
