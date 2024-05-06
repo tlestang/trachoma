@@ -62,7 +62,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from state import Population
+from .state import Population
 
 
 # When an event doesn't need to hold any state, we can just define as
@@ -197,30 +197,39 @@ class MDA:
 
     def __call__(self, pop: Population):
         if not hasattr(pop, "MDA_data"):
+            tment_prob = self.rng.beta(
+                a=self.a, b=self.b, size=pop.size
+            )
             pop.MDA_data = MDA_data(
                 ages=pop.ages,
-                treatment_probability = self.tment_prob,
+                treatment_probability = tment_prob,
                 beta_dist_params = (self.a, self.b)
             )
 
         was_reset = pop.MDA_data.ages < pop.ages
-        tment_prob_for_resets = np.beta(
-            *MDA_data.beta_dist_params,
+        tment_prob_for_resets = self.rng.beta(
+            *pop.MDA_data.beta_dist_params,
             size=np.count_nonzero(was_reset),
         )
+        tment_prob = pop.MDA_data.treatment_probability.copy()
+        tment_prob[was_reset] = tment_prob_for_resets
+
+        # If coverage and correlation values change, redraw
+        # treatment probabilities but keep rank correlation, i.e
+        # order of individuals sorted by treatment probabilities
+        # remains the same.
         if pop.MDA_data.beta_dist_params != (self.a, self.b):
-            cur_prob = pop.MDA_data.tment_prob.copy()
-            cur_prob[was_reset] = tment_prob_for_resets
-            self.tment_prob = self.tment_prob[np.argsort(cur_prob)]
-        else:
-            self.tment_prob[was_reset] = tment_prob_for_resets
+            tment_prob = self.rng.beta(
+                a=self.a, b=self.b, size=pop.size
+            )[np.argsort(tment_prob)]
+
         pop.MDA_data = MDA_data(
             ages=pop.ages,
-            treatment_probability = self.tment_prob,
+            treatment_probability = tment_prob,
             beta_dist_params = (self.a, self.b)
         )
 
-        t = self.rng.uniform(size=pop.size) < self.tment_prob
+        t = self.rng.uniform(size=pop.size) < tment_prob
         ntreated = np.count_nonzero(t)
         cured = np.zeros(pop.size, dtype=np.bool_)
         cured[t] = self.rng.uniform(size=ntreated) < self.efficacy
