@@ -38,6 +38,57 @@
 </div>
 <section id="simulation">
 <h2>Simulation<a class="headerlink" href="#simulation" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntdmc_trachoma.simulation.Simulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.simulation.Simulation" title="Link to this definition">¶</a></dt>
+<dd><p>Encapsulate top-level facilities for managing a trachoma simulation.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class provides is the primary entry point to
+handling a trachoma simulation over a range of beta parameters
+values.  It is responsible for reading parameters, loading and
+initialising the underlying C library, as well as providing an
+interface for writing simulation results on disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parameters_filepath</strong> (<em>pathlib.Path</em>) – The location of a valid parameter
+file. See <a class="reference internal" href="../parameters.html"><span class="doc">Writing parameter files</span></a>.</p>
+</dd>
+</dl>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ntdmc_trachoma</span> <span class="kn">import</span> <span class="n">Simulation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;parameters.json&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">betavals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;scenario.json&quot;</span><span class="p">),</span> <span class="n">betavals</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="ntdmc_trachoma.simulation.Simulation.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">betavals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.simulation.Simulation.simulate" title="Link to this definition">¶</a></dt>
+<dd><p>Simulate model over a given scenario, for a range of
+spread parameter values.</p>
+<p>This method does not modify the Simulation’s instance <code class="docutils literal notranslate"><span class="pre">pop</span></code>
+attribute.  Instead, a copy is made before passing it down to
+the function stepping the model, which does alter this copy.
+On the contrary, the <cite>output</cite> attribute is modified, adding
+new values generated at each iteration.  In other words, the
+<code class="docutils literal notranslate"><span class="pre">simulate</span></code> method has no side effects other than recording
+simulation ouput in the <cite>Simulation.output</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scenario_filepath</strong> (<em>pathlib.Path</em>) – location of a valid scenario
+file. See <a class="reference internal" href="../scenarios.html"><span class="doc">Writing scenario files</span></a>.</p></li>
+<li><p><strong>betavals</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) – The list of beta parameter values to run the
+simulation for.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
 </section>
 <section id="population">
 <h2>Population<a class="headerlink" href="#population" title="Link to this heading">¶</a></h2>
@@ -128,19 +179,109 @@ bacterial load for a given individual.</p>
 </dd></dl>
 
 </section>
-<section id="events">
-<h2>Events<a class="headerlink" href="#events" title="Link to this heading">¶</a></h2>
+<section id="module-ntdmc_trachoma.mda">
+<span id="events"></span><h2>Events<a class="headerlink" href="#module-ntdmc_trachoma.mda" title="Link to this heading">¶</a></h2>
+<p>Provide access to Python classes representing different types of
+events, currently:</p>
+<ul class="simple">
+<li><p>MDA intervention</p></li>
+<li><p>Simulation start</p></li>
+<li><p>Simulation end</p></li>
+</ul>
+<p>Events are represented as Callable classes, that is regular Python
+classes for which a __call__ method is implemented. This method <em>must</em>
+take a <cite>Population</cite> object as only argument. It is expected to modify
+this object in-place as part of modelling the impact of the event.</p>
+<p>Instance of event classes are supposed to represent all occurences of
+the event for a given intervention. For example, the events list for a
+annual MDA campaign from 2030 to 2040 will contain 10 references to
+the <em>same</em> MDA instance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By construct, all MDA in a given intervention (campaign) have the
+same parameters.</p>
+</div>
+<section id="event-specific-population-attributes">
+<h3>Event-specific <code class="docutils literal notranslate"><span class="pre">Population</span></code> attributes<a class="headerlink" href="#event-specific-population-attributes" title="Link to this heading">¶</a></h3>
+<p>Event objects often need to keep memory of their previous impact on a
+population.  For example a MDA object, to work on a population, must
+be aware of the number of times an individual received the treatment
+in the past.  A vaccination event would likely must be able to tell
+whether an individual in the population has received one or more doses
+already.  Events objects do not keep any state related any Population
+they work on. Instead, they ‘attach’ information to the <cite>Population</cite>
+instance as a event object specific attribute. The attribute is named
+according to the format:</p>
+<blockquote>
+<div><p>&lt;event type&gt;_&lt;event object id&gt;_&lt;generic attribute name&gt;</p>
+</div></blockquote>
+<p>where <cite>&lt;event object id&gt;</cite> is the underlying identifier of the Python
+object, obtained with <cite>id()</cite>. Therefore the attribute is specific to
+the event <em>instance</em>, not the class itself. It means two different
+instances of the same event class can attach independant information
+to the same population object. for instance two different MDA
+campaigns. Event attributes are created the first time the event
+object processes the <cite>Population</cite> object, and only update subsequent
+times.</p>
+</section>
+<section id="id1">
+<h3>Example:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">ages</span><span class="o">=</span><span class="n">ranges</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">17</span><span class="p">),</span> <span class="n">latent_base</span><span class="o">=</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mdaevent</span> <span class="o">=</span> <span class="n">MDA</span><span class="p">(</span><span class="n">coverage</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="mf">0.78</span><span class="p">,</span> <span class="n">efficacy</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">mda_treatment_count</span>
+<span class="go">AttributeError: &#39;MDA&#39; object has no attribute &#39;mda_treatment_count&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mdaevent</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pop</span><span class="o">.</span><span class="n">mda_treatment_count</span>
+<span class="go">np.array([0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 ,0, 0, 0, 1, 0], dtype=np.int32)</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="available-event-classes">
 <h2>Available event classes<a class="headerlink" href="#available-event-classes" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntdmc_trachoma.mda.MDA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.mda.</span></span><span class="sig-name descname"><span class="pre">MDA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correlation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efficacy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.mda.MDA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntdmc_trachoma.mda.start_sim">
+<span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.mda.</span></span><span class="sig-name descname"><span class="pre">start_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.mda.start_sim" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntdmc_trachoma.mda.end_sim">
+<span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.mda.</span></span><span class="sig-name descname"><span class="pre">end_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.mda.end_sim" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="creating-the-events-list-from-a-scenario-definition">
 <h2>Creating the events list from a scenario definition<a class="headerlink" href="#creating-the-events-list-from-a-scenario-definition" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">process_scenario_definition.py</span></code> module exposes only one
 function <cite>process_scenario_definition</cite>.  This function is used to
 process a scenario definition file and construct a list of events a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code> instance
-can work with. See <code class="xref py py-func docutils literal notranslate"><span class="pre">Simulation.simulate</span></code></p>
+<a class="reference internal" href="#ntdmc_trachoma.simulation.Simulation" title="ntdmc_trachoma.simulation.Simulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code></a> instance
+can work with. See <a class="reference internal" href="#ntdmc_trachoma.simulation.Simulation.simulate" title="ntdmc_trachoma.simulation.Simulation.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">Simulation.simulate</span></code></a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ntdmc_trachoma.process_scenario_definition.process_scenario_definition">
+<span class="sig-prename descclassname"><span class="pre">ntdmc_trachoma.process_scenario_definition.</span></span><span class="sig-name descname"><span class="pre">process_scenario_definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ntdmc_trachoma.process_scenario_definition.process_scenario_definition" title="Link to this definition">¶</a></dt>
+<dd><p>Read a scenario definition file and build a list of events.</p>
+<p>A scenario defines a list of programs, themselves defining
+one or several lists of interventions.  For instance, a program
+could define a bi-annual MDA intervention between 2024 and 2034,
+as well as a annual vaccination campaign between 2030 and 2034.</p>
+<p>The list of events is returned sorted according to increasing
+dates.  The final list always start with a “simulation start”
+event and ends with a “simulation end” event. See
+<a class="reference internal" href="#ntdmc_trachoma.mda.start_sim" title="ntdmc_trachoma.mda.start_sim"><code class="xref py py-func docutils literal notranslate"><span class="pre">events.start_sim</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em>) – Location of a valid scenario definition file.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="recording-population-state-during-a-simulation">
 <h2>Recording population state during a simulation<a class="headerlink" href="#recording-population-state-during-a-simulation" title="Link to this heading">¶</a></h2>
@@ -179,8 +320,8 @@ model.</p>
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="../libtrachoma.html#c.output" title="output"><code class="xref c c-struct docutils literal notranslate"><span class="pre">struct</span> <span class="pre">output</span></code></a></p>
 </div>
-<section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
+<section id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="n">betavals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
 <span class="n">nweeks</span> <span class="o">=</span> <span class="mi">52</span>
@@ -240,7 +381,7 @@ model.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#simulation">Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#population">Population</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#events">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-ntdmc_trachoma.mda">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#available-event-classes">Available event classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-the-events-list-from-a-scenario-definition">Creating the events list from a scenario definition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#recording-population-state-during-a-simulation">Recording population state during a simulation</a></li>
