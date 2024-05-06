@@ -119,7 +119,7 @@ We start by looping over the values of :math:`\beta`:
 
 Because our :download:`scenario <scenario.json>` spans 1144 weeks
 and records are made every weeks, we set ``nrecords=1144``.  The
-infected state of individuals are packed together intro groups of 8
+infected state of individuals are packed together into groups of 8
 bits, with one bit per individual.  To read all the age records
 made for a given value of :math:`\beta`, we need to read
 ``nrecords * popsize`` integers. Because age data is represented by
