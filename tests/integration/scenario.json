@@ -11,7 +11,7 @@
 		    "coverage": 0.7,
 		    "interval": 52,
 		    "efficacy": 0.85,
-		    "rho": 0.2
+		    "correlation": 0.2
 		}
 	    ]
 	}

@@ -49,7 +49,7 @@ Example:
 
 >>> rng = numpy.random.default_rng()
 >>> pop = Population(ages=ranges(1,17), latent_base=[16] * 2, rng)
->>> mdaevent = MDA(coverage=0.8, efficacy=0.85, rho=0.78)
+>>> mdaevent = MDA(coverage=0.8, correlation=0.78, efficacy=0.85)
 >>> pop.mda_treatment_count
 AttributeError: 'MDA' object has no attribute 'mda_treatment_count'
 >>> mdaevent(pop)
@@ -91,7 +91,7 @@ class MDA_legacy:
 
     The probability of treatment is function of how many times this
     individual received the treatment in the past. Denoting coverage
-    and compliance levels by :math:`C` and :math:`\rho` respectively,
+    and correlation levels by :math:`C` and :math:`\rho` respectively,
     it is expressed as
 
     .. math::
@@ -114,11 +114,12 @@ class MDA_legacy:
     :type coverage: number between 0 and 1
     :param efficacy: Treatment efficacy value
     :type efficacy: number between 0 and 1
-    :param rho: Compliance level
+    :param rho: Treatment correlation value
     :type rho: number between 0 and 1
     """
-    def __init__(self, coverage, efficacy, rho):
-        self.a = (1. / rho) - 1
+    def __init__(self, coverage: float,
+                 correlation: float, efficacy: float):
+        self.a = (1. / correlation) - 1
         self.coverage = coverage
         self.b = self.a * coverage
         self.rng = np.random.default_rng()
