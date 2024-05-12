@@ -67,6 +67,10 @@ def test_remove_individual():
     expected_bact_load = np.array(
         [0, 0] + expected_clock[2:]
     ) * 0.1
+    expected_indexes = np.array(
+        [12, 2, 0, 1] + list(range(3, 12)) + [13, 14, 15],
+        dtype=np.int32,
+    )
 
     lib.remove_indiv.restype = None
     lib.remove_indiv(pop, 2)
@@ -75,6 +79,7 @@ def test_remove_individual():
     nptest.assert_array_equal(expected_inf, pop.inf)
     nptest.assert_array_equal(expected_dis, pop.dis)
     nptest.assert_array_equal(expected_lat, pop.lat)
+    nptest.assert_array_equal(expected_indexes, pop.indexes)
     nptest.assert_array_equal(expected_clock, pop.clock)
     nptest.assert_array_equal(expected_count, pop.count)
     nptest.assert_array_equal(expected_bact_load, pop.bact_load)

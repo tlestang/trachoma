@@ -106,6 +106,7 @@ void remove_indiv(struct state st, int idx) {
   bgd_death_bitarray(st.inf, idx, nblocks);
   bgd_death_bitarray(st.dis, idx, nblocks);
   bgd_death_bitarray(st.lat, idx, nblocks);
+  rotate(st.indexes, 1, idx + 1, st.indexes[idx]);
   rotate(st.clockm, 1, idx + 1, -1);
   rotate(st.ages, 1, idx + 1, 0);
   rotate(st.count, 1, idx + 1, 0);
