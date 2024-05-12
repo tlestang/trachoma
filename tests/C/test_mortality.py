@@ -96,6 +96,8 @@ def test_old_age_mortality():
             1, 1, 1, 1, 1, 1, 1, 1
         ]
     )
+    default_rng = np.random.default_rng()
+    pop.indexes = default_rng.permutation(24).astype(np.int32)
 
     expected_ages = np.array([0] * 11 + list(range(13)))
     expected_inf = np.array(
@@ -105,8 +107,11 @@ def test_old_age_mortality():
             0, 1, 0, 0, 1, 1, 1, 0,
         ]
     )
+    expected_indexes = np.concatenate((pop.indexes[13:], pop.indexes[:13]))
+
     lib.old_age_mortality.restype = None
     lib.old_age_mortality(pop, 11)
 
     nptest.assert_array_equal(expected_inf, pop.inf)
     nptest.assert_array_equal(expected_ages, pop.ages)
+    nptest.assert_array_equal(expected_indexes, pop.indexes)

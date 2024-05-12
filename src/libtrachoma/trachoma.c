@@ -114,11 +114,21 @@ void remove_indiv(struct state st, int idx) {
 }
 
 void old_age_mortality(struct state st, int nold) {
-  int nblocks = st.n / 8;
+  int i;
+  int *reset_indexes = (int *)malloc(nold * sizeof(int));
+  for (i=0; i < nold; ++i) {
+    reset_indexes[nold - i - 1] = st.indexes[st.n - i - 1];
+  }
+  rotate(st.indexes, nold, st.n, 0);
+  memcpy(st.indexes, reset_indexes, nold * sizeof(int));
+  free(reset_indexes);
+
   rotate(st.clockm, nold, st.n, -1);
   rotate(st.count, nold, st.n, 0);
   rotate(st.ages, nold, st.n, 0);
   rotate_double(st.bactload, nold, st.n, 0.);
+
+  int nblocks = st.n / 8;
   rotate_bitarray(st.inf, nold, nblocks);
   rotate_bitarray(st.dis, nold, nblocks);
   rotate_bitarray(st.lat, nold, nblocks);
