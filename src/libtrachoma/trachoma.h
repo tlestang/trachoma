@@ -13,6 +13,8 @@ struct state {
   uint8_t *dis;
   /** latent state array */
   uint8_t *lat;
+  /** Individual's index array */
+  int *indexes;
   /** Clock array named 'clockm' to avoid clash with built-in clock()
    function */
   int *clockm;

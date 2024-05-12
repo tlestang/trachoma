@@ -70,6 +70,7 @@ class Population:
     def __init__(self, ages):
 
         self.size = len(ages)
+        self.indexes = np.array(range(self.size), dtype=np.int32)
         self.ages = np.sort(ages).astype(np.int32)
         self.clock = np.zeros(self.size, dtype=np.int32) - 1
         self.count = np.zeros(self.size, dtype=np.int32)
@@ -89,6 +90,7 @@ class Population:
             self._inf.ctypes.data_as(POINTER(c_ubyte)),
             self._dis.ctypes.data_as(POINTER(c_ubyte)),
             self._lat.ctypes.data_as(POINTER(c_ubyte)),
+            self.indexes.ctypes.data_as(POINTER(c_int)),
             self.clock.ctypes.data_as(POINTER(c_int)),
             self.ages.ctypes.data_as(POINTER(c_int)),
             self.count.ctypes.data_as(POINTER(c_int)),
@@ -163,6 +165,7 @@ class Pop_c(ctypes.Structure):
         ("inf", ctypes.POINTER(ctypes.c_ubyte)),
         ("dis", ctypes.POINTER(ctypes.c_ubyte)),
         ("lat", ctypes.POINTER(ctypes.c_ubyte)),
+        ("indexes", ctypes.POINTER(ctypes.c_int)),
         ("clockm", ctypes.POINTER(ctypes.c_int)),
         ("ages", ctypes.POINTER(ctypes.c_int)),
         ("count", ctypes.POINTER(ctypes.c_int)),
