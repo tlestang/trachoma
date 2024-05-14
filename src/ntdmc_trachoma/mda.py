@@ -145,7 +145,9 @@ class MDA_legacy:
 
             # A way to check whether or not an individual was reset is
             # to check if they are younger than they were last time!
-            was_reset = pop.ages - pop.mda_legacy_data.ages < 0
+            current_ages = pop.ages[np.argsort(pop.indexes)]
+            previous_ages = pop.mda_legacy_data.ages
+            was_reset = (current_ages - previous_ages) < 0
             treatment_count[was_reset] = 0
             t = self.distribute_treatment(pop.size, treatment_count)
             treatment_count[t] += 1
@@ -155,13 +157,13 @@ class MDA_legacy:
             t = self.rng.uniform(size=pop.size) < self.coverage
             treatment_count = t.astype(np.int32)  # True counts as 1 tment
         pop.mda_legacy_data = MDA_legacy_data(
-            ages = pop.ages,
-            treatment_count = treatment_count,
+            ages=pop.ages[np.argsort(pop.indexes)],
+            treatment_count=treatment_count,
         )
 
         ntreated = np.count_nonzero(t)
         cured = np.zeros(pop.size, dtype=np.bool_)
-        cured[t] = self.rng.uniform(size=ntreated) < self.efficacy
+        cured[t[pop.indexes]] = self.rng.uniform(size=ntreated) < self.efficacy
         # At this point it's tempting to write
         #
         # pop.inf[cured] = True
@@ -201,12 +203,14 @@ class MDA:
                 a=self.a, b=self.b, size=pop.size
             )
             pop.MDA_data = MDA_data(
-                ages=pop.ages,
-                treatment_probability = tment_prob,
-                beta_dist_params = (self.a, self.b)
+                ages=pop.ages[np.argsort(pop.indexes)],
+                treatment_probability=tment_prob,
+                beta_dist_params=(self.a, self.b),
             )
 
-        was_reset = pop.MDA_data.ages < pop.ages
+        current_ages = pop.ages[np.argsort(pop.indexes)]
+        previous_ages = pop.MDA_data.ages
+        was_reset = (current_ages - previous_ages) < 0
         tment_prob_for_resets = self.rng.beta(
             *pop.MDA_data.beta_dist_params,
             size=np.count_nonzero(was_reset),
