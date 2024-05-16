@@ -197,40 +197,36 @@ class MDA:
         self.b = (1. - coverage) * (1. - correlation) / correlation
         self.efficacy = efficacy
 
-    def __call__(self, pop: Population):
-        if not hasattr(pop, "MDA_data"):
-            tment_prob = self.rng.beta(
-                a=self.a, b=self.b, size=pop.size
+    def draw_tment_prob(self, ages, MDA_data=None):
+        if not MDA_data:
+            return self.rng.beta(
+                a=self.a, b=self.b, size=len(ages),
             )
-            pop.MDA_data = MDA_data(
-                ages=pop.ages[np.argsort(pop.indexes)],
-                treatment_probability=tment_prob,
-                beta_dist_params=(self.a, self.b),
-            )
-
-        current_ages = pop.ages[np.argsort(pop.indexes)]
-        previous_ages = pop.MDA_data.ages
-        was_reset = (current_ages - previous_ages) < 0
-        tment_prob_for_resets = self.rng.beta(
-            *pop.MDA_data.beta_dist_params,
+        was_reset = (ages - MDA_data.ages) < 0
+        tment_prob = MDA_data.treatment_probability.copy()
+        tment_prob[was_reset] = self.rng.beta(
+            *MDA_data.beta_dist_params,
             size=np.count_nonzero(was_reset),
         )
-        tment_prob = pop.MDA_data.treatment_probability.copy()
-        tment_prob[was_reset] = tment_prob_for_resets
-
         # If coverage and correlation values change, redraw
         # treatment probabilities but keep rank correlation, i.e
         # order of individuals sorted by treatment probabilities
         # remains the same.
-        if pop.MDA_data.beta_dist_params != (self.a, self.b):
+        if MDA_data.beta_dist_params != (self.a, self.b):
             tment_prob = self.rng.beta(
-                a=self.a, b=self.b, size=pop.size
+                a=self.a, b=self.b, size=len(ages)
             )[np.argsort(tment_prob)]
 
+        return tment_prob
+
+    def __call__(self, pop: Population):
+        current_ages = pop.ages[np.argsort(pop.indexes)]
+        tment_prob = self.draw_tment_prob(current_ages, pop.MDA_data)
+
         pop.MDA_data = MDA_data(
-            ages=pop.ages,
-            treatment_probability = tment_prob,
-            beta_dist_params = (self.a, self.b)
+            ages=current_ages,
+            treatment_probability=tment_prob,
+            beta_dist_params=(self.a, self.b),
         )
 
         t = self.rng.uniform(size=pop.size) < tment_prob
