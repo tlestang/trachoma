@@ -7,6 +7,7 @@ rng = np.random.default_rng()
 ages = rng.integers(low=1, high=60, size=16)
 a, b = (0.2, 0.3)
 
+
 def test_draw_tment_prob():
     pop = Population(ages)
     current_ages = pop.ages[np.argsort(pop.indexes)]
@@ -43,5 +44,28 @@ def test_draw_tment_prob():
 
 
 def test_draw_tment_prob_parameter_change():
-    #  TODO
-    pass
+    #  In this test we don't reset any individuals since
+    #  treatment probabilties are entirely redrawn.
+    pop = Population(ages)
+    current_ages = pop.ages[np.argsort(pop.indexes)]
+    data = MDA_data(
+        ages=current_ages,  # Sorted according to indexes
+        #  Set tment prob to arbitrary array, it only matters that we can
+        #  check that individuals are sorted in the same order according to
+        # to redrawn probabilities.
+        treatment_probability=rng.permutation(pop.indexes).astype(np.float64),
+        beta_dist_params=(a, b),
+    )
+    mda = MDA(a + 0.2, b - 0.1, 1.)
+    tment_prob = mda.draw_tment_prob(
+        pop.ages[np.argsort(pop.indexes)], data,
+    )
+    #  New values for treatment probabilties should be different,
+    #  because redrawn from new values of a and b.
+    with np.testing.assert_raises(AssertionError):
+        np.testing.assert_allclose(tment_prob, data.treatment_probability)
+    #  Order according to treatment probability should be kept the same.
+    np.testing.assert_array_equal(
+        np.argsort(tment_prob),
+        np.argsort(data.treatment_probability),
+    )
