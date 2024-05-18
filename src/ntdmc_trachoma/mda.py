@@ -213,9 +213,9 @@ class MDA:
         # order of individuals sorted by treatment probabilities
         # remains the same.
         if MDA_data.beta_dist_params != (self.a, self.b):
-            tment_prob = self.rng.beta(
-                a=self.a, b=self.b, size=len(ages)
-            )[np.argsort(tment_prob)]
+            tment_prob[np.argsort(tment_prob)] = np.sort(
+                self.rng.beta(a=self.a, b=self.b, size=len(ages)),
+            )
 
         return tment_prob
 
