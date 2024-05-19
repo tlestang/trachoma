@@ -56,10 +56,8 @@ def test_draw_tment_prob_parameter_change():
         treatment_probability=rng.permutation(pop.indexes).astype(np.float64),
         beta_dist_params=(a, b),
     )
-    mda = MDA(a + 0.2, b - 0.1, 1.)
-    tment_prob = mda.draw_tment_prob(
-        pop.ages[np.argsort(pop.indexes)], data,
-    )
+    mda = MDA(0.7, 0.9, 1.)  # Beta dist params different from a, b above
+    tment_prob = mda.draw_tment_prob(current_ages, data)
     #  New values for treatment probabilties should be different,
     #  because redrawn from new values of a and b.
     with np.testing.assert_raises(AssertionError):
