@@ -221,7 +221,10 @@ class MDA:
 
     def __call__(self, pop: Population):
         current_ages = pop.ages[np.argsort(pop.indexes)]
-        tment_prob = self.draw_tment_prob(current_ages, pop.MDA_data)
+        tment_prob = self.draw_tment_prob(
+            ages=current_ages,
+            MDA_data=getattr(pop, "MDA_data", None),
+        )
 
         pop.MDA_data = MDA_data(
             ages=current_ages,
