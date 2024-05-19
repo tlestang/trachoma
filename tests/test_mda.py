@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 import numpy as np
 from ntdmc_trachoma.state import Population
 from ntdmc_trachoma.mda import MDA, MDA_data
@@ -67,3 +67,20 @@ def test_draw_tment_prob_parameter_change():
         np.argsort(tment_prob),
         np.argsort(data.treatment_probability),
     )
+
+
+def test_call():
+    pop = Population(ages)
+    pop.inf = np.array(
+        [
+            0, 0, 1, 1, 1, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 1, 0,
+        ]
+    )
+    mda = MDA(1., 1., efficacy=1.)
+    mda.draw_tment_prob = Mock(return_value=pop.inf)
+    ntreated, ncured = mda(pop)
+
+    np.testing.assert_array_equal(pop.inf, np.zeros(16))
+    assert ntreated == 4
+    assert ncured == 4
