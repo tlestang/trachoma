@@ -9,7 +9,11 @@ def set_base_periods(lib, base_periods: BasePeriods):
     lib.set_base_periods.argtypes = [
         ndpointer(dtype=np.int32, ndim=1)
     ] * 3
-    lib.set_base_periods(*base_periods)
+    lib.set_base_periods(
+        base_periods.latent,
+        base_periods.ID,
+        base_periods.D,
+    )
     return base_periods
 
 
