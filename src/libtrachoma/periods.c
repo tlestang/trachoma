@@ -3,8 +3,8 @@
 #define MIN_ID 11
 #define MIN_D 1
 #define INF_RED 0.45
-#define AQ 0.00179
-#define AG 0.0368
+#define AG 0.00179
+#define AQ 0.0368
 
 int setidtime(int base, int count, int age) {
   double b = base - MIN_ID;
