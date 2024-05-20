@@ -144,6 +144,7 @@ class Population:
         latent_mask[latent_ids] = True
 
         self.lat = self.lat | latent_mask
+        self.inf = self.inf | latent_mask
         self.clock[latent_mask] = [
             latent_period_func(count, base)
             for count, base in zip(
