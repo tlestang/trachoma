@@ -18,6 +18,6 @@ int setdtime(int base, int count, int age) {
   return (int)floor(b * exp(a) + MIN_D);
 }
 
-int setlatenttime(int count, int base) {
+int setlatenttime(int base, int count) {
   return (int)base;
 }
