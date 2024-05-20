@@ -7,7 +7,7 @@ from .parameters import InfectionParameters, BasePeriods
 
 def set_base_periods(lib, base_periods: BasePeriods):
     lib.set_base_periods.argtypes = [
-        ndpointer(dtype=np.int32, ndim=1)
+        ndpointer(dtype=np.float64, ndim=1)
     ] * 3
     lib.set_base_periods(
         base_periods.latent,

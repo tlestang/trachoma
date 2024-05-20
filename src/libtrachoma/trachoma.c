@@ -8,7 +8,7 @@
 #include "shift.h"
 #include "trachoma.h"
 
-int *D_base, *ID_base, *latent_base;
+double *D_base, *ID_base, *latent_base;
 int *groups, ngroups;
 double BGD_DEATH_RATE;
 
@@ -246,7 +246,7 @@ double get_bact_load(int ninf) {
  *    the base value for the *D* period of each individual in the
  *    population
  */
-void set_base_periods(int *latent_base_m, int *ID_base_m, int *D_base_m) {
+void set_base_periods(double *latent_base_m, double *ID_base_m, double *D_base_m) {
   D_base = D_base_m;
   ID_base = ID_base_m;
   latent_base = latent_base_m;

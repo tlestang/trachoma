@@ -1,3 +1,3 @@
-int setidtime(int, int, int);
-int setdtime(int, int, int);
-int setlatenttime(int, int);
+int setidtime(double, int, int);
+int setdtime(double, int, int);
+int setlatenttime(double, int);

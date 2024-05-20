@@ -57,14 +57,14 @@ class Simulation:
         # arrays to be garbage collected.
         self.base_periods = BasePeriods(
             latent=np.array(
-                [params["durations"].I] * params["pop"].size, dtype=np.int32
+                [params["durations"].I] * params["pop"].size, dtype=np.float64
             ),
             ID=self.rng.poisson(
                 lam=params["durations"].ID, size=params["pop"].size,
-            ).astype(np.int32),
+            ).astype(np.float64),
             D=self.rng.poisson(
                 lam=params["durations"].D, size=params["pop"].size
-            ).astype(np.int32),
+            ).astype(np.float64),
         )
         ages = init.ages(
             params["pop"].size,
@@ -93,7 +93,7 @@ class Simulation:
     def get_latent_period_func(self):
         clib_func = self.lib.setlatenttime
         clib_func.restype = ctypes.c_int
-        clib_func.argtypes = [ctypes.c_int, ctypes.c_int]
+        clib_func.argtypes = [ctypes.c_double, ctypes.c_int]
         return clib_func
 
     def get_bact_load_func(self):
