@@ -140,15 +140,15 @@ void update_indivs(struct state st, uint8_t new_i, uint8_t new_d,
   for (j=0; j < 8; ++j) {
     k = j + block_id * 8;
     if ((new_d << j) & 0x80) { // is new D
-      st.clockm[k] = setdtime(D_base[k], st.count[k], st.ages[k]);
+      st.clockm[k] = setdtime(D_base[k], st.count[k], st.ages[k]) - 1;
       st.bactload[k] = 0.;
       continue;
     } else if ((clearinf << j) & 0x80) { // is new clearinf
-      st.clockm[k] = setidtime(ID_base[k], st.count[k], st.ages[k]);
       st.bactload[k] = get_bact_load(st.count[k]);
+      st.clockm[k] = setidtime(ID_base[k], st.count[k], st.ages[k]) - 1;
       continue;
     } else if ((new_i << j) & 0x80) { // is new I
-      st.clockm[k] = setlatenttime(latent_base[k], st.count[k]);
+      st.clockm[k] = setlatenttime(latent_base[k], st.count[k]) - 1;
       st.count[k]++;
     }
     else
