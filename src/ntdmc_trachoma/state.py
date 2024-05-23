@@ -139,7 +139,7 @@ class Population:
           bacterial load for a given individual.
 
         """
-        latent_ids = random.sample(range(self.size), k=k)
+        latent_ids = list(range(k))
         latent_mask = np.zeros(self.size, dtype=np.bool_)
         latent_mask[latent_ids] = True
 

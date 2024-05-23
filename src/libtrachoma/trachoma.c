@@ -43,6 +43,20 @@ void step(struct state st, struct output *out, int niter, double beta) {
   double *prob = (double *) malloc(st.n * sizeof(double));
 
   for (t = 0; t < niter; ++t) {
+    for (i = 0; i < 8; i++)
+      {
+	uint8_t isinf = (st.inf[0] << i) & '\x80';
+	uint8_t isdis = (st.dis[0] << i) & '\x80';
+	uint8_t islat = (st.lat[0] << i) & '\x80';
+
+	printf(islat ? "L" : "X");
+	printf(isinf ? "I" : "X");
+	printf(isdis ? "D" : "X");
+	// printf("%+.3d", st.clockm[i]);
+	printf("%.1d", st.indexes[i]);
+	printf(" ");
+      }
+    printf("\n");
 
     if (out != NULL) {
       int write_offset = t * nblocks;
@@ -71,7 +85,7 @@ void step(struct state st, struct output *out, int niter, double beta) {
 
     /* Apply background mortality */
     for (i = 0; st.ages[i] < max_age && i < st.n; ++i) {
-      if (rand() / (double)RAND_MAX < BGD_DEATH_RATE)
+      if (0)
 	remove_indiv(st, i);
       st.ages[i]++;
     }

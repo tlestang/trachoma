@@ -59,19 +59,14 @@ class Simulation:
             latent=np.array(
                 [params["durations"].I] * params["pop"].size, dtype=np.float64
             ),
-            ID=self.rng.poisson(
-                lam=params["durations"].ID, size=params["pop"].size,
-            ).astype(np.float64),
-            D=self.rng.poisson(
-                lam=params["durations"].D, size=params["pop"].size
-            ).astype(np.float64),
+            ID=np.array(
+                [params["durations"].ID] * params["pop"].size, dtype=np.float64
+            ),
+            D=np.array(
+                [params["durations"].D] * params["pop"].size, dtype=np.float64
+            ),
         )
-        ages = init.ages(
-            params["pop"].size,
-            params["pop"].max_age,
-            params["pop"].average_age,
-            self.rng,
-        )
+        ages = np.array([45, 352, 472, 652, 745, 908, 3117, 3120])
         self.pop = Population(ages)
         self.pop.seed_infection(
             k=params["pop"].n_initially_infected,
