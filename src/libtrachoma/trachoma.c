@@ -68,15 +68,6 @@ void step(struct state st, struct output *out, int niter, double beta) {
       }
       spread(st, new_i, i);
     } // nblocks
-
-    /* Apply background mortality */
-    for (i = 0; st.ages[i] < max_age && i < st.n; ++i) {
-      if (rand() / (double)RAND_MAX < BGD_DEATH_RATE)
-	remove_indiv(st, i);
-      st.ages[i]++;
-    }
-
-    old_age_mortality(st, st.n - i);
   }
   free(prob);
 }
