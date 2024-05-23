@@ -152,9 +152,6 @@ class Population:
                     latent_periods[latent_mask],
             )
         ]
-        self.bact_load[latent_mask] = [
-            bact_load_func(count) for count in self.count[latent_mask]
-        ]
         self.count[latent_mask] += 1
 
         return latent_ids
