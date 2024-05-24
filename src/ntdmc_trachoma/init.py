@@ -4,15 +4,15 @@ import numpy as np
 # TODO: Document initial age distribution
 def ages(pop_size, max_age, mean_age, rng):
     """Returns age array"""
-    ages = np.arange(max_age) + 1
-    age_prob = (
-        (1. - np.exp(-1. / mean_age)) *
-        np.exp(- ages / mean_age)
-    )
-    age_prob[-1] = 1 - age_prob[:-1].sum()
+    allowed_age_values = 1 + np.arange(max_age)
+
+    ages_normed = allowed_age_values / mean_age
+    weights = np.empty(len(ages))
+    weights[:-1] = np.exp(-ages_normed[:-1]) - np.exp(-ages_normed[1:])
+    weights[-1] = 1. - np.sum(weights[:-1])
 
     return rng.choice(
-        ages, p=age_prob,
+        allowed_age_values, p=weights,
         size=pop_size,
         replace=True
     )
