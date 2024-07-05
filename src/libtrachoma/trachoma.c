@@ -70,7 +70,7 @@ void step(struct state st, struct output *out, int niter, double beta) {
     } // nblocks
 
     /* Apply background mortality */
-    for (i = 0; st.ages[i] < max_age && i < st.n; ++i) {
+    for (i = 0; st.ages[i] < max_age - 1 && i < st.n; ++i) {
       if (rand() / (double)RAND_MAX < BGD_DEATH_RATE)
 	remove_indiv(st, i);
       st.ages[i]++;
