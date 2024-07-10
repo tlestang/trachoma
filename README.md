@@ -31,7 +31,11 @@ The package only depends on NumPy, but it is still recommended to use
 a virtual environment to isolate this verion on NumPy from others you
 might have installed on your machine.
 
-### Updating
+## Usage
+
+See (tlestang.github.io/trachoma)[https://tlestang.github.io/trachoma/].
+
+## Keeping your copy up to date
 
 The package is currently changing on a daily basis. To update, your
 local copy of the repository, run
