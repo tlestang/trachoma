@@ -7,7 +7,7 @@ def ages(pop_size, max_age, mean_age, rng):
     allowed_age_values = 1 + np.arange(max_age)
 
     ages_normed = allowed_age_values / mean_age
-    weights = np.empty(len(ages))
+    weights = np.empty(len(ages_normed))
     weights[:-1] = np.exp(-ages_normed[:-1]) - np.exp(-ages_normed[1:])
     weights[-1] = 1. - np.sum(weights[:-1])
 
